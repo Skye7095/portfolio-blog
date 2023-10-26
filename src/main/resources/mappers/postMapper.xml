@@ -22,7 +22,25 @@
 			`id` DESC;
 	</select>
 	
+	<!-- 개인 글 가져오기 -->
+	<select id="selectPostList" parameterType="int">
+		SELECT 
+			`id`
+			, `userId`
+			, `author`
+			, `title`
+			, `content`
+			, `createdAt`
+			, `updatedAt`
+		FROM
+			`post`
+		WHERE
+			`userId` = #{userId}
+		ORDER BY
+			`id` DESC;
+	</select>
 	
+	<!-- 글 작성 -->
 	<insert id="insertPost" parameterType="map">
 		INSERT INTO
 			`post`

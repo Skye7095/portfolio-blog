@@ -19,6 +19,11 @@ public class PostBO {
 		return postDAO.selectAllPostList();
 	}
 	
+	// 개인 글 가져오기
+	public List<Post> getPostList(String userId){
+		return postDAO.selectPostList(userId);
+	}
+	
 	// 유저별 글 생성
 	public int addPost(
 			String userId

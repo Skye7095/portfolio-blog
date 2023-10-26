@@ -13,7 +13,10 @@ public interface PostDAO {
 	// 전체 글 가져오기
 	public List<Post> selectAllPostList();
 	
-	// 유저 별 글 생성
+	// 개인 글 가져오기
+	public List<Post> selectPostList(@Param("userId") String userId);
+	
+	// 글 작성
 	public int insertPost(
 			@Param("userId") String userId
 			, @Param("author") String author
