@@ -1,6 +1,6 @@
 spring:
   datasource:
     drive-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/blog
+    url: jdbc:mysql://svc.sel5.cloudtype.app:30333/blog_231026
     username: root
-    password: 1013
+    password: root
