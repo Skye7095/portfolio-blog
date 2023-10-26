@@ -7,7 +7,7 @@
 <mapper namespace="com.portfolio.blog.post.dao.PostDAO">
 	
 	<!-- 전체 글 조회 -->
-	<select id="selectAllPostList" parameterType="int">
+	<select id="selectAllPostList">
 		SELECT 
 			`id`
 			, `userId`
@@ -23,7 +23,7 @@
 	</select>
 	
 	<!-- 개인 글 가져오기 -->
-	<select id="selectPostList" parameterType="int">
+	<select id="selectPostList" parameterType="String">
 		SELECT 
 			`id`
 			, `userId`
