@@ -2,11 +2,15 @@ package com.portfolio.blog.domain.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
-public class UserSignupRequest {
+@Setter
+public class UserLoginRequest {
+	
 	private String loginId;
 	private String password;
-	private String email;
 }

@@ -10,9 +10,9 @@ import com.portfolio.blog.domain.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer>{
 	
-	// loginId 중복 체크
+	// loginId 중복체크
 	Optional<User> findByLoginId(String loginId);
 	
-	// email 중복 체크
+	// email 중복체크
 	Optional<User> findByEmail(String email);
 }
