@@ -14,24 +14,20 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Builder
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Setter
-public class User {
+public class Post {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
-	private String loginId;
-	private String password;
-	private String email;
 	private String nickName;
-	private String userImg;
-	private String role;
+	private String title;
+	private String content;
+	private String mainImg;
 	private Date createdAt;
 	private Date updatedAt;
 	

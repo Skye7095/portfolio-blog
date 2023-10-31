@@ -7,6 +7,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.portfolio.blog.domain.User;
+import com.portfolio.blog.domain.dto.UserUpdateRequest;
 import com.portfolio.blog.exception.AppException;
 import com.portfolio.blog.exception.ErrorCode;
 import com.portfolio.blog.repository.UserRepository;
@@ -31,7 +32,7 @@ public class UserService {
 	private Long expireTimeMs = 1000 * 60l; 
 	
 	// 회원가입
-	public String join(String loginId, String password, String email, Date createdAt) {
+	public String join(String loginId, String password, String email, String role, Date createdAt) {
 		
 		// loginId 중복체크
 		userRepository.findByLoginId(loginId)
@@ -51,6 +52,7 @@ public class UserService {
 				.loginId(loginId)
 				.password(encoder.encode(password))
 				.email(email)
+				.role(role)
 				.createdAt(createdAt)
 				.build();
 		userRepository.save(user);
@@ -71,5 +73,44 @@ public class UserService {
 		// 토큰 발행
 		String token = JwtUtil.createToken(selectedUser.getLoginId(), key, expireTimeMs);
 		return token;
+	}
+	
+	// 정보 수정
+	public String update(
+			String loginId
+			,UserUpdateRequest dto) {
+		
+		// 만약 사용자가 없으면
+		User user = userRepository.findByLoginId(loginId)
+				.orElseThrow(() -> {
+					throw new AppException(ErrorCode.LOGINID_DUPLICATED, loginId + "는 찾을 수 없는 회원입니다.");
+				});
+
+		// nickName 중복체크
+		userRepository.findByNickName(dto.getNickName())
+			.ifPresent(existingUser -> {
+                if (existingUser.getId() != (user.getId())) {
+                    throw new AppException(ErrorCode.NICKNAME_DUPLICATED, dto.getNickName() + " 닉네임은 사용중입니다.");
+                }
+			});
+		
+		// 수정 저장 
+		user.setNickName(dto.getNickName());
+		
+		// 비번 변경하는 경우에만 비번 업데이트
+		if(dto.getNewPw() != null && !dto.getNewPw().isEmpty()) {
+			user.setPassword(encoder.encode(dto.getNewPw()));
+		}
+		
+		// userImg 변경하는 경우에만 업데이트
+		if(dto.getUserImg() != null ) {
+			user.setUserImg(dto.getUserImg());
+		}
+		
+		// 업데이트시 업데이트 시간 추가
+		user.setUpdatedAt(dto.getUpdatedAt());
+		userRepository.save(user);
+		
+		return "SUCCESS";
 	}
 }

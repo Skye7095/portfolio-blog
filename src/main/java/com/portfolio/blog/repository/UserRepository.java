@@ -10,9 +10,15 @@ import com.portfolio.blog.domain.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer>{
 	
-	// loginId 중복체크
+	// loginId를 통해 user 찾기
 	Optional<User> findByLoginId(String loginId);
 	
-	// email 중복체크
+	// email를 통해 user 찾기
 	Optional<User> findByEmail(String email);
+	
+	// nickName를 통해 user 찾기
+	Optional<User> findByNickName(String nickName);
+	
+	// id를 통해 user찾기
+	Optional<User> findById(int id);
 }

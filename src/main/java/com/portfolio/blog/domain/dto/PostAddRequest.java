@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,11 +14,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class UserJoinRequest {
-	private String loginId;
-	private String password;
-	private String email;
-	private String role;
+public class PostAddRequest {
+	
+	private int userId;
+	private String title;
+	private String content;
+	private String mainImg;
 	private Date createdAt;
 	
 	@PrePersist

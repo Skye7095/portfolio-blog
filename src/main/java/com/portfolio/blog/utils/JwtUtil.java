@@ -7,6 +7,20 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
 public class JwtUtil {
+	
+	// 토큰에서 user정보 꺼내기
+	public static String getLoginId(String token, String key) {
+		return Jwts.parser().setSigningKey(key).parseClaimsJws(token)
+				.getBody().get("loginId", String.class);
+	}
+	
+	// 토큰 유효기간 넘음
+	public static boolean isExpired(String token, String key) {
+		return Jwts.parser().setSigningKey(key).parseClaimsJws(token)
+				.getBody().getExpiration().before(new Date());
+	}
+	
+	// 토큰 발행
 	public static String createToken(String loginId, String key, long expireTimeMs) {
 		Claims claims = Jwts.claims(); 
 		claims.put("loginId", loginId);
