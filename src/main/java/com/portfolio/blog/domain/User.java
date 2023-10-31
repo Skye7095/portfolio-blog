@@ -3,6 +3,7 @@ package com.portfolio.blog.domain;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,12 +27,11 @@ public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
-	private String loginId;
-	private String password;
 	private String email;
+	private String password;
 	private String nickName;
 	private String userImg;
-	private String role;
+	private List<String> role;
 	private Date createdAt;
 	private Date updatedAt;
 	

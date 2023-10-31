@@ -16,10 +16,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserJoinRequest {
-	private String loginId;
-	private String password;
 	private String email;
-	private String role;
+	private String password;
 	private Date createdAt;
 	
 	@PrePersist

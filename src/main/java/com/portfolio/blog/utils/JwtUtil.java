@@ -9,9 +9,9 @@ import io.jsonwebtoken.SignatureAlgorithm;
 public class JwtUtil {
 	
 	// 토큰에서 user정보 꺼내기
-	public static String getLoginId(String token, String key) {
+	public static String getEmail(String token, String key) {
 		return Jwts.parser().setSigningKey(key).parseClaimsJws(token)
-				.getBody().get("loginId", String.class);
+				.getBody().get("email", String.class);
 	}
 	
 	// 토큰 유효기간 넘음
@@ -21,9 +21,9 @@ public class JwtUtil {
 	}
 	
 	// 토큰 발행
-	public static String createToken(String loginId, String key, long expireTimeMs) {
+	public static String createToken(String email, String key, long expireTimeMs) {
 		Claims claims = Jwts.claims(); 
-		claims.put("loginId", loginId);
+		claims.put("email", email);
 		
 		return Jwts.builder()
 				.setClaims(claims)

@@ -1,5 +1,8 @@
 package com.portfolio.blog.service;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
+
+import java.util.Collections;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -14,9 +17,11 @@ import com.portfolio.blog.repository.UserRepository;
 import com.portfolio.blog.utils.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 	
 	private final UserRepository userRepository;
@@ -32,13 +37,7 @@ public class UserService {
 	private Long expireTimeMs = 1000 * 60l; 
 	
 	// 회원가입
-	public String join(String loginId, String password, String email, String role, Date createdAt) {
-		
-		// loginId 중복체크
-		userRepository.findByLoginId(loginId)
-			.ifPresent(user -> {
-				throw new AppException(ErrorCode.LOGINID_DUPLICATED, loginId + " 아이디는 사용중입니다.");
-			});
+	public String join(String email, String password, Date createdAt) {
 		
 		// email 중복체크
 		userRepository.findByEmail(email)
@@ -49,10 +48,9 @@ public class UserService {
 		
 		// 저장
 		User user = User.builder()
-				.loginId(loginId)
-				.password(encoder.encode(password))
 				.email(email)
-				.role(role)
+				.password(encoder.encode(password))
+				.role(Collections.singletonList("ROLE_USER")) // 가입시 모두 user 부여
 				.createdAt(createdAt)
 				.build();
 		userRepository.save(user);
@@ -61,29 +59,31 @@ public class UserService {
 	}
 	
 	// 로그인
-	public String login(String loginId, String password) {
-		// loginId 없음
-		User selectedUser = userRepository.findByLoginId(loginId)
-					.orElseThrow(() -> new AppException(ErrorCode.LOGINID_NOT_FOUND, " 아이디는 존재하지 않습니다."));
+	public String login(String email, String password) {
+		// email 없음
+		User selectedUser = userRepository.findByEmail(email)
+					.orElseThrow(() -> {
+						throw new AppException(ErrorCode.EMAIL_NOT_FOUND, " 이메일은 존재하지 않습니다.");
+					});
 		// password 틀림
 		if(!encoder.matches(password, selectedUser.getPassword())) {
 			throw new AppException(ErrorCode.INVALID_PASSWORD, "패스워드를 잘못 입력했습니다.");
 		}
 		
 		// 토큰 발행
-		String token = JwtUtil.createToken(selectedUser.getLoginId(), key, expireTimeMs);
+		String token = JwtUtil.createToken(selectedUser.getEmail(), key, expireTimeMs);
 		return token;
 	}
 	
 	// 정보 수정
 	public String update(
-			String loginId
+			String email
 			,UserUpdateRequest dto) {
 		
 		// 만약 사용자가 없으면
-		User user = userRepository.findByLoginId(loginId)
+		User user = userRepository.findByEmail(email)
 				.orElseThrow(() -> {
-					throw new AppException(ErrorCode.LOGINID_DUPLICATED, loginId + "는 찾을 수 없는 회원입니다.");
+					throw new AppException(ErrorCode.EMAIL_NOT_FOUND, email + "는 찾을 수 없는 회원입니다.");
 				});
 
 		// nickName 중복체크
@@ -99,6 +99,7 @@ public class UserService {
 		
 		// 비번 변경하는 경우에만 비번 업데이트
 		if(dto.getNewPw() != null && !dto.getNewPw().isEmpty()) {
+			log.info(dto.getNewPw());
 			user.setPassword(encoder.encode(dto.getNewPw()));
 		}
 		

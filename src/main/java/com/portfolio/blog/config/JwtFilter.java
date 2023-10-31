@@ -48,11 +48,11 @@ public class JwtFilter extends OncePerRequestFilter {
 		}
 		
 		// loginId를 token에서 꺼내기
-		String loginId = JwtUtil.getLoginId(token, key);
+		String email = JwtUtil.getEmail(token, key);
 		
 		// 권한 부여
 		UsernamePasswordAuthenticationToken authenticationToken = 
-				new UsernamePasswordAuthenticationToken(loginId, null, List.of(new SimpleGrantedAuthority("USER")));
+				new UsernamePasswordAuthenticationToken(email, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
 		
 		// detail를 넣어줌
 		authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

@@ -8,9 +8,8 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum ErrorCode {
-	LOGINID_DUPLICATED(HttpStatus.CONFLICT, ""),
 	EMAIL_DUPLICATED(HttpStatus.CONFLICT, ""),
-	LOGINID_NOT_FOUND(HttpStatus.NOT_FOUND, ""),
+	EMAIL_NOT_FOUND(HttpStatus.NOT_FOUND, ""),
 	INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, ""),
 	NICKNAME_DUPLICATED(HttpStatus.CONFLICT, "")
 	;
