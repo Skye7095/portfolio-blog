@@ -1,10 +1,9 @@
-package com.portfolio.blog.domain.dto;
+package com.portfolio.blog.domain.dto.request;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Date;
 
-import jakarta.persistence.PrePersist;
+import com.portfolio.blog.domain.Post;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,10 +19,15 @@ public class PostAddRequest {
 	private String title;
 	private String content;
 	private String mainImg;
-	private Date createdAt;
+	private LocalDateTime createdAt = LocalDateTime.now();
 	
-	@PrePersist
-	protected void onCreate() {
-		createdAt = Timestamp.valueOf(LocalDateTime.now());
+	public Post toEntity() {
+		return Post.builder()
+				.userId(userId)
+				.title(title)
+				.content(content)
+				.mainImg(mainImg)
+				.createdAt(createdAt)
+				.build();
 	}
 }

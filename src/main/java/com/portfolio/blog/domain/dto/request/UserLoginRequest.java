@@ -1,4 +1,4 @@
-package com.portfolio.blog.domain.dto;
+package com.portfolio.blog.domain.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,27 +1,23 @@
 package com.portfolio.blog.service;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
-
+import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.portfolio.blog.domain.User;
-import com.portfolio.blog.domain.dto.UserUpdateRequest;
+import com.portfolio.blog.domain.dto.request.UserUpdateRequest;
 import com.portfolio.blog.exception.AppException;
 import com.portfolio.blog.exception.ErrorCode;
 import com.portfolio.blog.repository.UserRepository;
 import com.portfolio.blog.utils.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class UserService {
 	
 	private final UserRepository userRepository;
@@ -33,11 +29,11 @@ public class UserService {
 	@Value("${jwt.secret}")
 	private String key;
 	
-	// expireTimeMs = 1분
-	private Long expireTimeMs = 1000 * 60l; 
+	// expireTimeMs = 5분
+	private Long expireTimeMs = 1000 * 60 * 5l; 
 	
 	// 회원가입
-	public String join(String email, String password, Date createdAt) {
+	public String join(String email, String password) {
 		
 		// email 중복체크
 		userRepository.findByEmail(email)
@@ -51,7 +47,7 @@ public class UserService {
 				.email(email)
 				.password(encoder.encode(password))
 				.role(Collections.singletonList("ROLE_USER")) // 가입시 모두 user 부여
-				.createdAt(createdAt)
+				.createdAt(LocalDateTime.now())
 				.build();
 		userRepository.save(user);
 		
@@ -78,14 +74,14 @@ public class UserService {
 	// 정보 수정
 	public String update(
 			String email
-			,UserUpdateRequest dto) {
+			, UserUpdateRequest dto) {
 		
 		// 만약 사용자가 없으면
 		User user = userRepository.findByEmail(email)
 				.orElseThrow(() -> {
 					throw new AppException(ErrorCode.EMAIL_NOT_FOUND, email + "는 찾을 수 없는 회원입니다.");
 				});
-
+		
 		// nickName 중복체크
 		userRepository.findByNickName(dto.getNickName())
 			.ifPresent(existingUser -> {
@@ -98,12 +94,11 @@ public class UserService {
 		user.setNickName(dto.getNickName());
 		
 		// 비번 변경하는 경우에만 비번 업데이트
-		if(dto.getNewPw() != null && !dto.getNewPw().isEmpty()) {
-			log.info(dto.getNewPw());
+		if(dto.getNewPw() != null) {
 			user.setPassword(encoder.encode(dto.getNewPw()));
 		}
 		
-		// userImg 변경하는 경우에만 업데이트
+		// userImg 변경하는 경우에만 비번 업데이트
 		if(dto.getUserImg() != null ) {
 			user.setUserImg(dto.getUserImg());
 		}
