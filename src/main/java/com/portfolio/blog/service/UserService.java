@@ -1,14 +1,13 @@
 package com.portfolio.blog.service;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.portfolio.blog.domain.User;
-import com.portfolio.blog.domain.dto.request.UserUpdateRequest;
+import com.portfolio.blog.dto.request.UserUpdateRequest;
+import com.portfolio.blog.dto.User;
 import com.portfolio.blog.exception.AppException;
 import com.portfolio.blog.exception.ErrorCode;
 import com.portfolio.blog.repository.UserRepository;
@@ -47,7 +46,6 @@ public class UserService {
 				.email(email)
 				.password(encoder.encode(password))
 				.role(Collections.singletonList("ROLE_USER")) // 가입시 모두 user 부여
-				.createdAt(LocalDateTime.now())
 				.build();
 		userRepository.save(user);
 		
@@ -103,8 +101,6 @@ public class UserService {
 			user.setUserImg(dto.getUserImg());
 		}
 		
-		// 업데이트시 업데이트 시간 추가
-		user.setUpdatedAt(dto.getUpdatedAt());
 		userRepository.save(user);
 		
 		return "SUCCESS";

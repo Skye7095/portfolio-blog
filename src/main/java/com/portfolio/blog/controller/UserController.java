@@ -2,14 +2,15 @@ package com.portfolio.blog.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.portfolio.blog.domain.dto.request.UserJoinRequest;
-import com.portfolio.blog.domain.dto.request.UserLoginRequest;
-import com.portfolio.blog.domain.dto.request.UserUpdateRequest;
+import com.portfolio.blog.dto.request.UserJoinRequest;
+import com.portfolio.blog.dto.request.UserLoginRequest;
+import com.portfolio.blog.dto.request.UserUpdateRequest;
 import com.portfolio.blog.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class UserController {
 	
 	private final UserService userService;

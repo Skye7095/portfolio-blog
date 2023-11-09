@@ -1,4 +1,4 @@
-package com.portfolio.blog.domain.dto.request;
+package com.portfolio.blog.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,8 +9,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class UserLoginRequest {
-	
+public class UserJoinRequest {
 	private String email;
 	private String password;
+
 }

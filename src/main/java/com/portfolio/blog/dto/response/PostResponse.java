@@ -1,8 +1,8 @@
-package com.portfolio.blog.domain.dto.response;
+package com.portfolio.blog.dto.response;
 
 import java.time.LocalDateTime;
 
-import com.portfolio.blog.domain.Post;
+import com.portfolio.blog.dto.Post;
 
 import jakarta.persistence.Entity;
 import lombok.Getter;

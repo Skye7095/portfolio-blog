@@ -1,4 +1,4 @@
-package com.portfolio.blog.domain.dto.request;
+package com.portfolio.blog.dto.request;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -20,5 +20,4 @@ public class UserUpdateRequest {
 	private String newPw;
 	private String nickName;
 	private String userImg;
-	private LocalDateTime updatedAt = LocalDateTime.now();
 }

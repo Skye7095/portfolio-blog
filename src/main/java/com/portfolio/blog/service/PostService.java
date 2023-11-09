@@ -1,6 +1,5 @@
 package com.portfolio.blog.service;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,11 +8,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
-import com.portfolio.blog.domain.Post;
-import com.portfolio.blog.domain.User;
-import com.portfolio.blog.domain.dto.request.PostAddRequest;
-import com.portfolio.blog.domain.dto.request.PostUpdateRequest;
-import com.portfolio.blog.domain.dto.response.PostResponse;
+import com.portfolio.blog.dto.Post;
+import com.portfolio.blog.dto.User;
+import com.portfolio.blog.dto.request.PostAddRequest;
+import com.portfolio.blog.dto.request.PostUpdateRequest;
+import com.portfolio.blog.dto.response.PostResponse;
 import com.portfolio.blog.exception.AppException;
 import com.portfolio.blog.exception.ErrorCode;
 import com.portfolio.blog.repository.PostRepository;
@@ -31,7 +30,12 @@ public class PostService {
 	// 글 등록
 	public int writePost(PostAddRequest dto) {
 		// 저장
-		Post post = postRepository.save(dto.toEntity());
+		Post post = Post.builder()
+				.userId(dto.getUserId())
+				.title(dto.getTitle())
+				.content(dto.getContent()) // 가입시 모두 user 부여
+				.mainImg(dto.getMainImg())
+				.build();
 		
 		return post.getId();
 	}
@@ -91,7 +95,6 @@ public class PostService {
 		}
 		
 		// 업데이트시 업데이트 시간 추가
-		post.setUpdatedAt(dto.getUpdatedAt());
 		postRepository.save(post);
 			
 		return "SUCCESS";

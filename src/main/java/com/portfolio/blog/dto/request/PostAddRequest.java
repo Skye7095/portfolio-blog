@@ -1,8 +1,8 @@
-package com.portfolio.blog.domain.dto.request;
+package com.portfolio.blog.dto.request;
 
 import java.time.LocalDateTime;
 
-import com.portfolio.blog.domain.Post;
+import com.portfolio.blog.dto.Post;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,15 +19,5 @@ public class PostAddRequest {
 	private String title;
 	private String content;
 	private String mainImg;
-	private LocalDateTime createdAt = LocalDateTime.now();
-	
-	public Post toEntity() {
-		return Post.builder()
-				.userId(userId)
-				.title(title)
-				.content(content)
-				.mainImg(mainImg)
-				.createdAt(createdAt)
-				.build();
-	}
+
 }

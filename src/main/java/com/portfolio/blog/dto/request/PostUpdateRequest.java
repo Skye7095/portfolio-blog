@@ -1,4 +1,4 @@
-package com.portfolio.blog.domain.dto.request;
+package com.portfolio.blog.dto.request;
 
 import java.time.LocalDateTime;
 
@@ -16,5 +16,5 @@ public class PostUpdateRequest {
 	private String newTitle;
 	private String newContent;
 	private String newMainImg;
-	private LocalDateTime updatedAt = LocalDateTime.now();
+
 }

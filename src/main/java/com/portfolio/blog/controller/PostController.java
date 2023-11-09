@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,10 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.portfolio.blog.domain.Post;
-import com.portfolio.blog.domain.dto.request.PostAddRequest;
-import com.portfolio.blog.domain.dto.request.PostUpdateRequest;
-import com.portfolio.blog.domain.dto.response.PostResponse;
+import com.portfolio.blog.dto.request.PostAddRequest;
+import com.portfolio.blog.dto.request.PostUpdateRequest;
+import com.portfolio.blog.dto.response.PostResponse;
+import com.portfolio.blog.dto.Post;
 import com.portfolio.blog.service.PostService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/posts")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class PostController {
 	
 	private final PostService postService;

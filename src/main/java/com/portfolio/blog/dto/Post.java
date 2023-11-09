@@ -1,4 +1,4 @@
-package com.portfolio.blog.domain;
+package com.portfolio.blog.dto;
 
 import java.time.LocalDateTime;
 
@@ -18,7 +18,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Post {
+public class Post extends BaseTimeEntity{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
@@ -26,6 +26,4 @@ public class Post {
 	private String title;
 	private String content;
 	private String mainImg;
-	private LocalDateTime createdAt = LocalDateTime.now();
-	private LocalDateTime updatedAt = LocalDateTime.now() ;
 }

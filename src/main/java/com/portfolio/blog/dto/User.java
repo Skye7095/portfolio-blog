@@ -1,4 +1,4 @@
-package com.portfolio.blog.domain;
+package com.portfolio.blog.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,7 +19,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class User {
+public class User extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
@@ -28,7 +28,4 @@ public class User {
 	private String nickName;
 	private String userImg;
 	private List<String> role;
-	private LocalDateTime createdAt;
-	private LocalDateTime updatedAt;
-
 }
