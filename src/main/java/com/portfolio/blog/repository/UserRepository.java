@@ -18,4 +18,6 @@ public interface UserRepository extends JpaRepository<User, Integer>{
 	
 	// id를 통해 user찾기
 	Optional<User> findById(int id);
+	
+	
 }

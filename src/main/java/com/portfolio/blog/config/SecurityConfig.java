@@ -32,7 +32,6 @@ public class SecurityConfig {
 				.csrf().disable()
 				.cors().and()
 				.authorizeRequests()
-//				.requestMatchers("/api/**").permitAll()
 				.requestMatchers("/api/user/join", "/api/user/login").permitAll()
 				.requestMatchers("/api/user/update").authenticated()
 				.requestMatchers("/api/posts/add").authenticated()

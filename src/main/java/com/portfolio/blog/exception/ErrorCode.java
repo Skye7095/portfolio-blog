@@ -8,6 +8,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum ErrorCode {
+	REFRESHTOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, ""),
 	EMAIL_DUPLICATED(HttpStatus.CONFLICT, ""),
 	EMAIL_NOT_FOUND(HttpStatus.NOT_FOUND, ""),
 	INVALID_USER(HttpStatus.UNAUTHORIZED, ""),

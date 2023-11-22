@@ -1,15 +1,20 @@
 package com.portfolio.blog.service;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.portfolio.blog.dto.request.UserUpdateRequest;
+import com.portfolio.blog.dto.Token;
 import com.portfolio.blog.dto.User;
+import com.portfolio.blog.dto.request.UserUpdateRequest;
+import com.portfolio.blog.dto.response.UserInfoResponse;
+import com.portfolio.blog.dto.response.UserTokenResponse;
 import com.portfolio.blog.exception.AppException;
 import com.portfolio.blog.exception.ErrorCode;
+import com.portfolio.blog.repository.JWTRepository;
 import com.portfolio.blog.repository.UserRepository;
 import com.portfolio.blog.utils.JwtUtil;
 
@@ -20,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 	
 	private final UserRepository userRepository;
+	private final JWTRepository jwtRepository;
 	
 	// 비번 encoding
 	private final BCryptPasswordEncoder encoder;
@@ -28,11 +34,8 @@ public class UserService {
 	@Value("${jwt.secret}")
 	private String key;
 	
-	// expireTimeMs = 5분
-	private Long expireTimeMs = 1000 * 60 * 5l; 
-	
 	// 회원가입
-	public String join(String email, String password) {
+	public String join(String email, String password, String nickName) {
 		
 		// email 중복체크
 		userRepository.findByEmail(email)
@@ -40,11 +43,17 @@ public class UserService {
 				throw new AppException(ErrorCode.EMAIL_DUPLICATED, email + " 이메일은 사용중입니다.");
 			});
 		
+		// nickName 중복체크
+		userRepository.findByNickName(nickName)
+			.ifPresent(user -> {
+                throw new AppException(ErrorCode.NICKNAME_DUPLICATED, nickName + " 닉네임은 사용중입니다.");
+			});
 		
 		// 저장
 		User user = User.builder()
 				.email(email)
 				.password(encoder.encode(password))
+				.nickName(nickName)
 				.role(Collections.singletonList("ROLE_USER")) // 가입시 모두 user 부여
 				.build();
 		userRepository.save(user);
@@ -53,7 +62,7 @@ public class UserService {
 	}
 	
 	// 로그인
-	public String login(String email, String password) {
+	public UserTokenResponse login(String email, String password) {
 		// email 없음
 		User selectedUser = userRepository.findByEmail(email)
 					.orElseThrow(() -> {
@@ -65,12 +74,35 @@ public class UserService {
 		}
 		
 		// 토큰 발행
-		String token = JwtUtil.createToken(selectedUser.getEmail(), key, expireTimeMs);
-		return token;
+		String accessToken = JwtUtil.createAccessToken(selectedUser.getEmail(), key);
+		String refreshToken = JwtUtil.createRefreshToken(selectedUser.getEmail(), key);
+		
+		// Refresh토큰 있는지 확인
+		Optional<Token> token = jwtRepository.findByUserId(selectedUser.getId());
+		
+		if(token.isPresent()) {
+			// refreshtoken 있으면 db 갱신
+            jwtRepository.save(token.get().updateToken(refreshToken));
+        }else {
+        	// refreshtoken 없으면 db 새로 생성
+    		Token newToken = Token.builder()
+    				.userId(selectedUser.getId())
+    				.refreshToken(refreshToken)
+    				.build();
+    		jwtRepository.save(newToken);
+        }
+		
+		// 사용자의 필수정보를 객체에 담아서 리턴
+		UserTokenResponse userToken = UserTokenResponse.builder()
+				.userId(selectedUser.getId())
+				.accessToken(accessToken)
+				.build();
+		
+		return userToken;
 	}
 	
 	// 정보 수정
-	public String update(
+	public UserInfoResponse update(
 			String email
 			, UserUpdateRequest dto) {
 		
@@ -101,8 +133,18 @@ public class UserService {
 			user.setUserImg(dto.getUserImg());
 		}
 		
-		userRepository.save(user);
+		userRepository.save(user);		
 		
-		return "SUCCESS";
+		// userInfoResponse 담아서 리턴
+		UserInfoResponse userInfoResponse = UserInfoResponse.builder()
+				.id(user.getId())
+				.email(user.getEmail())
+				.nickName(user.getNickName())
+				.userImg(user.getUserImg())
+				.createdAt(user.getCreatedAt())
+				.updatedAt(user.getUpdatedAt())
+				.build();
+		
+		return userInfoResponse;
 	}
 }
