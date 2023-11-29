@@ -1,4 +1,4 @@
-name: Create and publish a Docker image to Docker Hub, Deploy to Cloudtype
+name: userImg
 
 on:
   push:
