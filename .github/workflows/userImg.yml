@@ -47,7 +47,7 @@ jobs:
           stage: main
           yaml: |
             name: portfolio-blog
-            app: container
+            type: container
             options:
               ports: 8080
               image: ${{ steps.meta.outputs.tags }}
