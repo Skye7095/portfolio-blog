@@ -1,9 +1,6 @@
 name: userImg
 
-on:
-  push:
-    branches:
-      - main
+on: [push]
 
 env:
   IMAGE_NAME: hkim7095/blog_user
