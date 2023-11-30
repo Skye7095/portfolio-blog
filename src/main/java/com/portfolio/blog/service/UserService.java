@@ -6,7 +6,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.portfolio.blog.config.FileManagerService;
 import com.portfolio.blog.dto.Token;
 import com.portfolio.blog.dto.User;
 import com.portfolio.blog.dto.request.UserUpdateRequest;
@@ -35,7 +37,7 @@ public class UserService {
 	private String key;
 	
 	// 회원가입
-	public String join(String email, String password, String nickName) {
+	public String join(String email, String password, String nickName, MultipartFile file) {
 		
 		// email 중복체크
 		userRepository.findByEmail(email)
@@ -49,11 +51,18 @@ public class UserService {
                 throw new AppException(ErrorCode.NICKNAME_DUPLICATED, nickName + " 닉네임은 사용중입니다.");
 			});
 		
+		// userImg 경로
+		String userImg = "0";
+		if (file != null) {
+			userImg = FileManagerService.saveUserFile(email, file);
+		}
+		
 		// 저장
 		User user = User.builder()
 				.email(email)
 				.password(encoder.encode(password))
 				.nickName(nickName)
+				.userImg(userImg)
 				.role(Collections.singletonList("ROLE_USER")) // 가입시 모두 user 부여
 				.build();
 		userRepository.save(user);
@@ -128,9 +137,10 @@ public class UserService {
 			user.setPassword(encoder.encode(dto.getNewPw()));
 		}
 		
-		// userImg 변경하는 경우에만 비번 업데이트
+		// userImg 변경하는 경우에만 img 업데이트
 		if(dto.getUserImg() != null ) {
-			user.setUserImg(dto.getUserImg());
+			String userImg = FileManagerService.saveUserFile(email, dto.getUserImg());
+			user.setUserImg(userImg);
 		}
 		
 		userRepository.save(user);		
