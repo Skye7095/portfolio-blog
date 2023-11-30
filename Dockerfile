@@ -1,9 +1,9 @@
 FROM openjdk:17.0.2-jdk-slim-buster AS builder
 
 WORKDIR /app
-COPY gradlew build.gradle.kts settings.gradle.kts ./
 COPY gradle ./gradle
 COPY src/main ./src/main
+
 RUN ./gradlew --8.3
 RUN ./gradlew bootJar
 
