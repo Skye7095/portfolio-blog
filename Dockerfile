@@ -4,7 +4,8 @@ WORKDIR /app
 COPY gradle ./gradle
 COPY src/main ./src/main
 
-RUN ./gradlew --8.3
+RUN chmod +x gradlew
+RUN ./gradlew
 RUN ./gradlew bootJar
 
 FROM openjdk:17.0.2-slim-buster
