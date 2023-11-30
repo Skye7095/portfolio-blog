@@ -1,7 +1,16 @@
 FROM openjdk:17.0.2-jdk-slim-buster AS builder
 
 WORKDIR /app
+COPY gradlew build.gradle.kts settings.gradle.kts ./
+COPY gradle ./gradle
+COPY src/main ./src/main
+RUN ./gradlew bootJar
 
-COPY build/libs/blog.jar /app/
+FROM openjdk:17.0.2-slim-buster
 
-CMD ["java", "-jar", "blog.jar"]
+WORKDIR /app
+COPY --from=builder /app/build/libs/blog-*.jar app.jar
+
+ENV PROFILE="dev"
+
+ENTRYPOINT java -jar app.jar --spring.profiles.active=$PROFILE
