@@ -43,7 +43,7 @@ jobs:
         uses: cloudtype-github-actions/deploy@v1
         with:
           token: ${{ secrets.CLOUDTYPE_TOKEN }}
-          project: portfolio_blog/portfolio-blog
+          project: blog-portfolio/blog
           stage: main
           yaml: |
             name: portfolio-blog
