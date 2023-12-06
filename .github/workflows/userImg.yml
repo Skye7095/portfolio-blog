@@ -46,7 +46,7 @@ jobs:
           project: blog-portfolio/blog
           stage: main
           yaml: |
-            name: portfolio-blog
+            name: blog
             type: container
             options:
               ports: 8080
