@@ -7,10 +7,11 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.portfolio.blog.config.FileManagerService;
 import com.portfolio.blog.dto.Post;
 import com.portfolio.blog.dto.User;
-import com.portfolio.blog.dto.request.PostAddRequest;
 import com.portfolio.blog.dto.request.PostUpdateRequest;
 import com.portfolio.blog.dto.response.PostResponse;
 import com.portfolio.blog.exception.AppException;
@@ -28,16 +29,33 @@ public class PostService {
 	private final UserRepository userRepository;
 	
 	// 글 등록
-	public int writePost(PostAddRequest dto) {
+	public PostResponse writePost(int userId, String title, String content, MultipartFile file) {
+		
+		// mainImg 경로
+		String mainImg = "0";
+		if (file != null) {
+			mainImg = FileManagerService.savePostFile(title, file);
+		}
+		
 		// 저장
 		Post post = Post.builder()
-				.userId(dto.getUserId())
-				.title(dto.getTitle())
-				.content(dto.getContent()) // 가입시 모두 user 부여
-				.mainImg(dto.getMainImg())
+				.userId(userId)
+				.title(title)
+				.content(content) // 가입시 모두 user 부여
+				.mainImg(mainImg)
 				.build();
+		postRepository.save(post);
 		
-		return post.getId();
+		// 사용자의 필수정보를 객체에 담아서 리턴
+		PostResponse postResponse = new PostResponse(post);
+		postResponse.setId(post.getId());
+		postResponse.setUserId(post.getUserId());
+		postResponse.setTitle(post.getTitle());
+		postResponse.setContent(post.getContent());
+		postResponse.setMainImg(post.getMainImg());
+		postResponse.setCreatedAt(post.getCreatedAt());
+		
+		return postResponse;
 	}
 	
 	
@@ -49,7 +67,9 @@ public class PostService {
 		List<Post> postList = postRepository.findAll(sort);
 		
 		// Stream api 사용
-		return postList.stream().map(PostResponse::new).collect(Collectors.toList());
+		return postList.stream()
+				.map(PostResponse::new)
+				.collect(Collectors.toList());
 	}
 	
 	// 글 수정
@@ -67,7 +87,7 @@ public class PostService {
 		// 해당 id인 글이 존재 하지 않음
 		Post post = postRepository.findById(postId)
 				.orElseThrow(() -> {
-					throw new AppException(ErrorCode.POST_NOT_FOUND, Integer.toString(postId) + "번째 글을 찾을 수 없습니다.");
+					throw new AppException(ErrorCode.POST_NOT_FOUND, postId + "번째 글을 찾을 수 없습니다.");
 				});
 		
 		// 해당 id인 글이 존재하지만 userId 일치하지 않을 경우
@@ -90,8 +110,9 @@ public class PostService {
 		}
 		
 		// mainImg 변경하는 경우에만 mainImg 업데이트
-		if(dto.getNewMainImg() != null ) {
-			post.setContent(dto.getNewMainImg());
+		if(dto.getNewFile() != null ) {
+			String mainImg = FileManagerService.savePostFile(dto.getNewTitle(), dto.getNewFile());
+			post.setMainImg(mainImg);
 		}
 		
 		// 업데이트시 업데이트 시간 추가

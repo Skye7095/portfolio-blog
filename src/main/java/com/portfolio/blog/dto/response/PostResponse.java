@@ -4,10 +4,11 @@ import java.time.LocalDateTime;
 
 import com.portfolio.blog.dto.Post;
 
-import jakarta.persistence.Entity;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class PostResponse {
 	
 	private int id;  // post의 id

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.portfolio.blog.dto.request.PostAddRequest;
 import com.portfolio.blog.dto.request.PostUpdateRequest;
 import com.portfolio.blog.dto.response.PostResponse;
+import com.portfolio.blog.dto.response.UserTokenResponse;
 import com.portfolio.blog.dto.Post;
 import com.portfolio.blog.service.PostService;
 
@@ -42,8 +43,10 @@ public class PostController {
 	// 글 등록
 	@Operation(summary="글 작성하기")
 	@PostMapping("/post/add")
-	public int writePost(@RequestBody PostAddRequest dto){		
-		return postService.writePost(dto);
+	public ResponseEntity<?> writePost(@RequestBody PostAddRequest dto){	
+		PostResponse postResponse = postService.writePost(dto.getUserId(), dto.getTitle(), dto.getContent(), dto.getFile());
+		
+		return ResponseEntity.ok().body(postResponse);
 	}
 	
 	// 글 수정

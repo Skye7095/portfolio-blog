@@ -1,6 +1,6 @@
 package com.portfolio.blog.dto.request;
 
-import java.time.LocalDateTime;
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,6 +15,6 @@ public class PostUpdateRequest {
 	
 	private String newTitle;
 	private String newContent;
-	private String newMainImg;
+	private MultipartFile newFile;
 
 }
