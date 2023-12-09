@@ -1,17 +1,24 @@
 package com.portfolio.blog.service;
 
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.portfolio.blog.config.FileManagerService;
+import com.portfolio.blog.dto.Post;
 import com.portfolio.blog.dto.Token;
 import com.portfolio.blog.dto.User;
 import com.portfolio.blog.dto.request.UserUpdateRequest;
+import com.portfolio.blog.dto.response.PostResponse;
 import com.portfolio.blog.dto.response.UserInfoResponse;
 import com.portfolio.blog.dto.response.UserTokenResponse;
 import com.portfolio.blog.exception.AppException;
@@ -52,7 +59,7 @@ public class UserService {
 			});
 		
 		// userImg 경로
-		String userImg = "0";
+		String userImg = "null";
 		if (file != null) {
 			userImg = FileManagerService.saveUserFile(email, file);
 		}
@@ -146,6 +153,28 @@ public class UserService {
 		userRepository.save(user);		
 		
 		// userInfoResponse 담아서 리턴
+		UserInfoResponse userInfoResponse = UserInfoResponse.builder()
+				.id(user.getId())
+				.email(user.getEmail())
+				.nickName(user.getNickName())
+				.userImg(user.getUserImg())
+				.createdAt(user.getCreatedAt())
+				.updatedAt(user.getUpdatedAt())
+				.build();
+		
+		return userInfoResponse;
+	}
+	
+	// 사용자 정보 조회
+	public UserInfoResponse getUserInfo(int userId){
+		
+		// 만약 사용자가 없으면
+		User user = userRepository.findById(userId)
+				.orElseThrow(() -> {
+					throw new AppException(ErrorCode.USER_NOT_FOUND, userId + "는 찾을 수 없는 회원입니다.");
+				});
+		
+		// 정보를 userInfoResponse에 담아서 리턴
 		UserInfoResponse userInfoResponse = UserInfoResponse.builder()
 				.id(user.getId())
 				.email(user.getEmail())

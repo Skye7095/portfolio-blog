@@ -1,10 +1,10 @@
 package com.portfolio.blog.controller;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,10 +15,7 @@ import com.portfolio.blog.dto.request.UserLoginRequest;
 import com.portfolio.blog.dto.request.UserUpdateRequest;
 import com.portfolio.blog.dto.response.UserInfoResponse;
 import com.portfolio.blog.dto.response.UserTokenResponse;
-import com.portfolio.blog.exception.AppException;
-import com.portfolio.blog.exception.ErrorCode;
 import com.portfolio.blog.service.UserService;
-import com.portfolio.blog.utils.JwtUtil;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -56,5 +53,13 @@ public class UserController {
 	public ResponseEntity<?> update(Authentication authentication, @RequestBody UserUpdateRequest dto){		
 		UserInfoResponse userInfoResponse = userService.update(authentication.getName(), dto);
 	    return ResponseEntity.ok().body(userInfoResponse);
+	}
+	
+	// 회원 정보 조회
+	@Operation(summary="회원 정보 조회", description="userId 필요")
+	@GetMapping("/{userId}")
+	public ResponseEntity<?> userInfo(@PathVariable int userId) {
+		UserInfoResponse userInfoResponse = userService.getUserInfo(userId);
+		return ResponseEntity.ok().body(userInfoResponse);
 	}
 }

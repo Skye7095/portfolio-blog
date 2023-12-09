@@ -32,7 +32,7 @@ public class PostService {
 	public PostResponse writePost(int userId, String title, String content, MultipartFile file) {
 		
 		// mainImg 경로
-		String mainImg = "0";
+		String mainImg = "null";
 		if (file != null) {
 			mainImg = FileManagerService.savePostFile(title, file);
 		}
