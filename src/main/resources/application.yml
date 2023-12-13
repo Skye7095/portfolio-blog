@@ -5,10 +5,8 @@ spring:
     show-sql: true
   datasource:
     drive-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/blog
+    url: jdbc:mysql://svc.sel5.cloudtype.app:32723/blog
     username: root
-    password: 1013
-  profiles:
-    active: production
+    password: root
 jwt:
   secret: portfolio.blog.key

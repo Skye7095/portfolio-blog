@@ -1,17 +1,22 @@
-FROM openjdk:17.0.2-jdk-slim-buster AS builder
+FROM openjdk:17.0.2-jdk-slim-buster as build
+
+# build
+WORKDIR /app
+COPY . /app
+
+RUN if [ -f "./gradlew" ]; then chmod +x ./gradlew; fi
+RUN --mount=type=cache,id=test-gradle,target=/root/.gradle ./gradlew clean bootjar -x test --build-cache -i -s --no-daemon
+
+# runner
+FROM openjdk:17.0.2-jdk-slim-buster
+
+RUN set -o errexit -o nounset \
+  && groupadd --system --gid 1000 java \
+  && useradd --system --gid java --uid 1000 --shell /bin/bash --create-home java
 
 WORKDIR /app
-COPY . .
+COPY --from=build --chown=java:java /app/ .
 
-RUN chmod +x gradlew
-RUN ./gradlew
-RUN ./gradlew bootJar
+USER java
 
-FROM openjdk:17.0.2-slim-buster
-
-WORKDIR /app
-COPY --from=builder /app/build/libs/*.jar app.jar
-
-ENV PROFILE="dev"
-
-ENTRYPOINT java -jar app.jar --spring.profiles.active=$PROFILE
+CMD java -jar -Dspring.profiles.active=${PROFILE:=prod} `find . -type f -name "*.jar" ! -path "*-plain.jar" ! -path "*-wrapper.jar" | head -1`
