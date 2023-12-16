@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.portfolio.blog.dto.Post;
-import com.portfolio.blog.dto.response.PostResponse;
 
 public interface PostRepository extends JpaRepository<Post, Integer>{
 	

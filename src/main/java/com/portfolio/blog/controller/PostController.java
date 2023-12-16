@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.portfolio.blog.dto.request.PostAddRequest;
 import com.portfolio.blog.dto.request.PostUpdateRequest;
 import com.portfolio.blog.dto.response.PostResponse;
-import com.portfolio.blog.dto.response.UserTokenResponse;
 import com.portfolio.blog.dto.Post;
 import com.portfolio.blog.service.PostService;
 
