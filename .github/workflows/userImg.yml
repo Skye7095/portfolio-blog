@@ -39,6 +39,11 @@ jobs:
           push: true
           tags: ${{ env.USER_IMAGE_NAME }}:tagname
 
+      - name: Connect deploy key
+        uses: cloudtype-github-actions/connect@v1
+        with:
+          token: ${{ secrets.CLOUDTYPE_TOKEN }}
+
       - name: Deploy to Cloudtype
         uses: cloudtype-github-actions/deploy@v1
         with:
