@@ -13,7 +13,6 @@ import lombok.Setter;
 @Setter
 public class PostAddRequest {
 	
-	private int userId;
 	private String title;
 	private String content;
 	private MultipartFile file;

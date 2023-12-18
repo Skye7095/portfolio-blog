@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.portfolio.blog.dto.request.PostAddRequest;
 import com.portfolio.blog.dto.request.PostUpdateRequest;
 import com.portfolio.blog.dto.response.PostResponse;
-import com.portfolio.blog.dto.Post;
 import com.portfolio.blog.service.PostService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,8 +41,8 @@ public class PostController {
 	// 글 등록
 	@Operation(summary="글 작성하기")
 	@PostMapping("/post/add")
-	public ResponseEntity<?> writePost(@RequestBody PostAddRequest dto){	
-		PostResponse postResponse = postService.writePost(dto.getUserId(), dto.getTitle(), dto.getContent(), dto.getFile());
+	public ResponseEntity<?> writePost(Authentication authentication, @RequestBody PostAddRequest dto){	
+		PostResponse postResponse = postService.writePost(authentication.getName(), dto);
 		
 		return ResponseEntity.ok().body(postResponse);
 	}
@@ -66,7 +65,7 @@ public class PostController {
 	// 개별 글 조회
 	@Operation(summary="개별 글 조회", description="postId 필요")
 	@GetMapping("/post/{postId}")
-	public Post getPost(@PathVariable int postId){
+	public PostResponse getPost(@PathVariable int postId){
 		return postService.getPost(postId);
 	}
 	

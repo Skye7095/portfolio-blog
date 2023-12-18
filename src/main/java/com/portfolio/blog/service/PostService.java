@@ -7,13 +7,14 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.portfolio.blog.config.FileManagerService;
 import com.portfolio.blog.dto.Post;
 import com.portfolio.blog.dto.User;
+import com.portfolio.blog.dto.request.PostAddRequest;
 import com.portfolio.blog.dto.request.PostUpdateRequest;
 import com.portfolio.blog.dto.response.PostResponse;
+import com.portfolio.blog.dto.response.UserInfoResponse;
 import com.portfolio.blog.exception.AppException;
 import com.portfolio.blog.exception.ErrorCode;
 import com.portfolio.blog.repository.PostRepository;
@@ -27,29 +28,48 @@ public class PostService {
 	
 	private final PostRepository postRepository;
 	private final UserRepository userRepository;
+	private final UserService userService;
 	
 	// 글 등록
-	public PostResponse writePost(int userId, String title, String content, MultipartFile file) {
+	public PostResponse writePost(
+			String email
+			, PostAddRequest dto) {
+		// user 정보 찾기
+		User user = userRepository.findByEmail(email)
+				.orElseThrow(() -> {
+					throw new AppException(ErrorCode.USER_NOT_FOUND, email + "는 찾을 수 없는 회원입니다.");
+				});
+		
+		// userInfoResponse 담아서 리턴
+		UserInfoResponse userInfoResponse = UserInfoResponse.builder()
+				.id(user.getId())
+				.email(user.getEmail())
+				.nickName(user.getNickName())
+				.userImg(user.getUserImg())
+				.createdAt(user.getCreatedAt())
+				.updatedAt(user.getUpdatedAt())
+				.build();
 		
 		// mainImg 경로
 		String mainImg = "null";
-		if (file != null) {
-			mainImg = FileManagerService.savePostFile(title, file);
+		if (dto.getFile() != null) {
+			mainImg = FileManagerService.savePostFile(dto.getTitle(), dto.getFile());
 		}
 		
 		// 저장
 		Post post = Post.builder()
-				.userId(userId)
-				.title(title)
-				.content(content) // 가입시 모두 user 부여
+				.userId(user.getId())
+				.title(dto.getTitle())
+				.content(dto.getContent()) // 가입시 모두 user 부여
 				.mainImg(mainImg)
 				.build();
 		postRepository.save(post);
 		
 		// 사용자의 필수정보를 객체에 담아서 리턴
-		PostResponse postResponse = new PostResponse(post);
+		PostResponse postResponse = new PostResponse(post, userInfoResponse);
 		postResponse.setId(post.getId());
 		postResponse.setUserId(post.getUserId());
+		postResponse.setUserInfoResponse(userInfoResponse);
 		postResponse.setTitle(post.getTitle());
 		postResponse.setContent(post.getContent());
 		postResponse.setMainImg(post.getMainImg());
@@ -68,7 +88,7 @@ public class PostService {
 		
 		// Stream api 사용
 		return postList.stream()
-				.map(PostResponse::new)
+				.map(post -> new PostResponse(post, userService.getUserInfo(post.getUserId())))
 				.collect(Collectors.toList());
 	}
 	
@@ -137,20 +157,33 @@ public class PostService {
 		
 		// Stream api 사용
 		return postList.stream()
-				.map(PostResponse::new)
+				.map(post -> new PostResponse(post, userService.getUserInfo(post.getUserId())))
 		        .sorted(postIdComparator)
 		        .collect(Collectors.toList());
 	}
 	
 	// 개별 글 조회
-	public Post getPost(int postId) {
+	public PostResponse getPost(int postId) {
 		// 만약 글이 없으면
 		Post post = postRepository.findById(postId)
 			.orElseThrow(() -> {
 				throw new AppException(ErrorCode.POST_NOT_FOUND, postId + "번째 글은 찾을 수 없습니다.");
 			});
 		
-		return post;
+		// userInfoResponse 만들기
+		UserInfoResponse userInfoResponse = userService.getUserInfo(post.getUserId());
+		
+		// postResponse 반환
+		PostResponse postResponse = new PostResponse(post, userInfoResponse);
+		postResponse.setId(post.getId());
+		postResponse.setUserId(post.getUserId());
+		postResponse.setUserInfoResponse(userInfoResponse);
+		postResponse.setTitle(post.getTitle());
+		postResponse.setContent(post.getContent());
+		postResponse.setMainImg(post.getMainImg());
+		postResponse.setCreatedAt(post.getCreatedAt());
+		
+		return postResponse;
 	}
 	
 	// 개별 글 삭제
