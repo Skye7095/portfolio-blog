@@ -32,8 +32,8 @@ public class JwtUtil {
 		Claims claims = Jwts.claims(); 
 		claims.put("email", email);
 		
-		// 유효기간 1분
-		long expirationTimeMillis = 1000 * 60;
+		// 유효기간 30분
+		long expirationTimeMillis = 1000 * 60 * 30;
 		
 		return Jwts.builder()
 				.setClaims(claims)
@@ -48,8 +48,8 @@ public class JwtUtil {
 		Claims claims = Jwts.claims(); 
 		claims.put("email", email);
 	
-		// 유효기간 10분
-		long expirationTimeMillis = 1000 * 60 * 10;
+		// 유효기간 1시간
+		long expirationTimeMillis = 1000 * 60 * 60;
 		
 		return Jwts.builder()
 				.setClaims(claims)

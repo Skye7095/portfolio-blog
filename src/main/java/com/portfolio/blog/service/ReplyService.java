@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 import com.portfolio.blog.dto.Post;
 import com.portfolio.blog.dto.Reply;
 import com.portfolio.blog.dto.User;
+import com.portfolio.blog.dto.response.PostResponse;
 import com.portfolio.blog.dto.response.ReplyResponse;
+import com.portfolio.blog.dto.response.UserInfoResponse;
 import com.portfolio.blog.exception.AppException;
 import com.portfolio.blog.exception.ErrorCode;
 import com.portfolio.blog.repository.PostRepository;
@@ -25,6 +27,7 @@ public class ReplyService {
 	private final ReplyRepository replyRepository;
 	private final PostRepository postRepository;
 	private final UserRepository userRepository;
+	private final UserService userService;
 
 	// 댓글 등록
 	public ReplyResponse writeReply(int postId, int replyId, String email, String content) {
@@ -51,11 +54,21 @@ public class ReplyService {
 		replyRepository.save(reply);
 		
 		// 사용자의 필수정보를 객체에 담아서 리턴
-		ReplyResponse replyResponse = new ReplyResponse(reply);
+		UserInfoResponse userInfoResponse = UserInfoResponse.builder()
+				.id(user.getId())
+				.email(user.getEmail())
+				.nickName(user.getNickName())
+				.userImg(user.getUserImg())
+				.createdAt(user.getCreatedAt())
+				.updatedAt(user.getUpdatedAt())
+				.build();
+		
+		ReplyResponse replyResponse = new ReplyResponse(reply, userInfoResponse);
 		replyResponse.setId(reply.getId());
 		replyResponse.setPostId(reply.getPostId());
 		replyResponse.setReplyId(reply.getReplyId());
 		replyResponse.setUserId(reply.getUserId());
+		replyResponse.setUserInfoResponse(userInfoResponse);
 		replyResponse.setContent(reply.getContent());
 		replyResponse.setCreatedAt(reply.getCreatedAt());
 		replyResponse.setUpdatedAt(reply.getUpdatedAt());
@@ -79,7 +92,7 @@ public class ReplyService {
 		
 		// Stream api 사용
 		return replyList.stream()
-				.map(ReplyResponse::new)
+				.map(reply -> new ReplyResponse(reply, userService.getUserInfo(post.getUserId())))
 		        .sorted(replyIdComparator)
 		        .collect(Collectors.toList());
 	}

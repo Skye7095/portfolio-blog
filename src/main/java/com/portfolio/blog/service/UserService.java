@@ -101,10 +101,21 @@ public class UserService {
     		jwtRepository.save(newToken);
         }
 		
-		// 사용자의 필수정보를 객체에 담아서 리턴
+		// 사용자의 필수정보를 객체에 담아서 리턴		
+		UserInfoResponse userInfoResponse = UserInfoResponse.builder()
+				.id(selectedUser.getId())
+				.email(selectedUser.getEmail())
+				.nickName(selectedUser.getNickName())
+				.userImg(selectedUser.getUserImg())
+				.createdAt(selectedUser.getCreatedAt())
+				.updatedAt(selectedUser.getUpdatedAt())
+				.build();
+		
+		
 		UserTokenResponse userToken = UserTokenResponse.builder()
 				.userId(selectedUser.getId())
 				.accessToken(accessToken)
+				.userInfoResponse(userInfoResponse)
 				.build();
 		
 		return userToken;

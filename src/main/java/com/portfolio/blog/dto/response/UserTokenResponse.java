@@ -11,6 +11,7 @@ public class UserTokenResponse {
 
 	private int userId;
 	private String accessToken;
+	private UserInfoResponse userInfoResponse;
 	
 //	public UserTokenResponse(Token entity) {
 //		this.userId = entity.getUserId();

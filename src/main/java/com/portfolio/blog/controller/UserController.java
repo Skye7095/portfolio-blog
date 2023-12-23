@@ -54,12 +54,4 @@ public class UserController {
 		UserInfoResponse userInfoResponse = userService.update(authentication.getName(), dto);
 	    return ResponseEntity.ok().body(userInfoResponse);
 	}
-	
-	// 회원 정보 조회
-	@Operation(summary="회원 정보 조회", description="userId 필요")
-	@GetMapping("/{userId}")
-	public ResponseEntity<?> userInfo(@PathVariable int userId) {
-		UserInfoResponse userInfoResponse = userService.getUserInfo(userId);
-		return ResponseEntity.ok().body(userInfoResponse);
-	}
 }
