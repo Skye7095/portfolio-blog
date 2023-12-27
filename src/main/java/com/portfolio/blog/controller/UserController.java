@@ -48,7 +48,7 @@ public class UserController {
 	}
 	
 	// 정보 수정
-	@Operation(summary="회원 정보 수정")
+	@Operation(summary="회원 정보 수정", description="token필수")
 	@PostMapping("/update")
 	public ResponseEntity<?> update(Authentication authentication, @RequestBody UserUpdateRequest dto){		
 		UserInfoResponse userInfoResponse = userService.update(authentication.getName(), dto);

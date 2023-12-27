@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.portfolio.blog.dto.request.PostAddRequest;
@@ -39,7 +40,7 @@ public class PostController {
 	}
 	
 	// 글 등록
-	@Operation(summary="글 작성하기")
+	@Operation(summary="글 작성하기", description="token필수")
 	@PostMapping("/post/add")
 	public ResponseEntity<?> writePost(Authentication authentication, @RequestBody PostAddRequest dto){	
 		PostResponse postResponse = postService.writePost(authentication.getName(), dto);
@@ -48,7 +49,7 @@ public class PostController {
 	}
 	
 	// 글 수정
-	@Operation(summary="글 수정하기")
+	@Operation(summary="글 수정하기", description="token필수")
 	@PostMapping("/post/update/{postId}")
 	public ResponseEntity<String> updatePost(Authentication authentication, @PathVariable int postId, @RequestBody PostUpdateRequest dto){
 		postService.updatePost(authentication.getName(), postId, dto);
@@ -71,9 +72,11 @@ public class PostController {
 	
 	// 글 삭제
 	@Operation(summary="개별 글 삭제", description="token 및 postId 필요")
-	@DeleteMapping("/post/{postId}/delete")
-	public String deletePost(Authentication authentication, @PathVariable int postId) {
-		postService.deletePost(authentication.getName(), postId);
-		return postId + "번째 글 삭제 완료했습니다.";
+	@DeleteMapping("/post/delete")
+	public String deletePost(Authentication authentication, @RequestParam List<Integer> postIds) {
+		for (int postId : postIds) {
+			postService.deletePost(authentication.getName(), postId);
+	    }
+		return "선택하신 글을 삭제 완료했습니다.";
 	}
 }

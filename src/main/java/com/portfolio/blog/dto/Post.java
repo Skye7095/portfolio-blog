@@ -1,7 +1,6 @@
 package com.portfolio.blog.dto;
 
-import java.time.LocalDateTime;
-
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,6 +23,8 @@ public class Post extends BaseTimeEntity{
 	private int id;
 	private int userId;
 	private String title;
+	
+	@Column(columnDefinition = "TEXT")  // 본문내용 길이제한 없애기
 	private String content;
 	private String mainImg;
 }
