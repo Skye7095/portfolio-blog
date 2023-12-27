@@ -41,7 +41,7 @@ public class PostController {
 	
 	// 글 등록
 	@Operation(summary="글 작성하기", description="token필수")
-	@PostMapping("/post/add")
+	@PostMapping("/add")
 	public ResponseEntity<?> writePost(Authentication authentication, @RequestBody PostAddRequest dto){	
 		PostResponse postResponse = postService.writePost(authentication.getName(), dto);
 		
@@ -50,7 +50,7 @@ public class PostController {
 	
 	// 글 수정
 	@Operation(summary="글 수정하기", description="token필수")
-	@PostMapping("/post/update/{postId}")
+	@PostMapping("/update/{postId}")
 	public ResponseEntity<String> updatePost(Authentication authentication, @PathVariable int postId, @RequestBody PostUpdateRequest dto){
 		postService.updatePost(authentication.getName(), postId, dto);
 		return ResponseEntity.ok().body(postId + "번째 글 수정 성공했습니다.");
@@ -58,21 +58,21 @@ public class PostController {
 	
 	// 개인 글 조회
 	@Operation(summary="개인 글 조회", description="userId 필요")
-	@GetMapping("/user/{userId}")
-	public List<PostResponse> userPosts(@PathVariable int userId) {
+	@GetMapping("/user")
+	public List<PostResponse> userPosts(@RequestParam int userId) {
 		return postService.getUserPost(userId);
 	}
 	
 	// 개별 글 조회
 	@Operation(summary="개별 글 조회", description="postId 필요")
-	@GetMapping("/post/{postId}")
-	public PostResponse getPost(@PathVariable int postId){
+	@GetMapping("/post")
+	public PostResponse getPost(@RequestParam int postId){
 		return postService.getPost(postId);
 	}
 	
 	// 글 삭제
-	@Operation(summary="개별 글 삭제", description="token 및 postId 필요")
-	@DeleteMapping("/post/delete")
+	@Operation(summary="글 삭제", description="token 및 postId 필요")
+	@DeleteMapping("/delete")
 	public String deletePost(Authentication authentication, @RequestParam List<Integer> postIds) {
 		for (int postId : postIds) {
 			postService.deletePost(authentication.getName(), postId);
