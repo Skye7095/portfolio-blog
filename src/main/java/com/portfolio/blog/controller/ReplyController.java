@@ -1,13 +1,13 @@
 package com.portfolio.blog.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,7 +41,7 @@ public class ReplyController {
 	}
 	
 	// 댓글 조회
-	@Operation(summary="댓글 조회", description="postId 필요 / 대댓글 작성 시, 최상위 replyId 전달 필요 / 최신순 정렬")
+	@Operation(summary="댓글 조회", description="postId필요 / url: /api/replies?postId=* / 최신순 정렬")
 	@GetMapping("")
 	public List<ReplyResponse> postReplies(@RequestParam int postId) {
 		return replyService.getPostReplies(postId);
@@ -50,10 +50,16 @@ public class ReplyController {
 	// 댓글 삭제
 	@Operation(summary="댓글 삭제", description="token 및 replyId 필요 / replyId는 배열로 전달")
 	@DeleteMapping("/delete")
-	public String deletePost(Authentication authentication, @RequestParam List<Integer> replyIds) {
-		for (int replyId : replyIds) {
-			replyService.deleteReply(authentication.getName(), replyId);
-	    }
-		return "선택하신 댓글을 삭제 완료했습니다.";
+	public String deletePost(Authentication authentication, @RequestBody Map<String, List<Integer>> requestBody) {
+		List<Integer> replyIds = requestBody.get("replyIds");
+		
+		if(replyIds != null) {
+			for (int replyId : replyIds) {
+				replyService.deleteReply(authentication.getName(), replyId);
+		    }
+			return "선택하신 댓글을 삭제 완료했습니다.";
+		}else {
+			return "선택한 댓글이 없습니다";
+		}
 	}
 }
