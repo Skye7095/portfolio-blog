@@ -1,5 +1,7 @@
 package com.portfolio.blog.service;
 
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,7 +11,7 @@ import org.springframework.stereotype.Service;
 import com.portfolio.blog.dto.Post;
 import com.portfolio.blog.dto.Reply;
 import com.portfolio.blog.dto.User;
-import com.portfolio.blog.dto.response.PostResponse;
+import com.portfolio.blog.dto.request.ReplyAddRequest;
 import com.portfolio.blog.dto.response.ReplyResponse;
 import com.portfolio.blog.dto.response.UserInfoResponse;
 import com.portfolio.blog.exception.AppException;
@@ -25,65 +27,33 @@ import lombok.RequiredArgsConstructor;
 public class ReplyService {
 	
 	private final ReplyRepository replyRepository;
-	private final PostRepository postRepository;
-	private final UserRepository userRepository;
 	private final UserService userService;
+	private final PostService postService;
 
 	// 댓글 등록
-	public ReplyResponse writeReply(int postId, int replyId, String email, String content) {
+	public void writeReply(String email, int postId, ReplyAddRequest dto) {
 		
 		// 만약 post가 없으면
-		Post post = postRepository.findById(postId)
-				.orElseThrow(() -> {
-					throw new AppException(ErrorCode.POST_NOT_FOUND, postId + "번째 글은 찾을 수 없습니다.");
-				});
+		Post post = postService.getPostById(postId);
 		
 		// 만약 user가 없으면
-		User user = userRepository.findByEmail(email)
-				.orElseThrow(() -> {
-					throw new AppException(ErrorCode.EMAIL_NOT_FOUND, email + "는 찾을 수 없는 회원입니다.");
-				});
+		User user = userService.getUserByEmail(email);
 		
 		// 저장
 		Reply reply = Reply.builder()
 				.postId(postId)
-				.replyId(replyId)
+				.replyId(dto.getReplyId())
 				.userId(user.getId())
-				.content(content) // 가입시 모두 user 부여
+				.content(dto.getContent())
 				.build();
 		replyRepository.save(reply);
-		
-		// 사용자의 필수정보를 객체에 담아서 리턴
-		UserInfoResponse userInfoResponse = UserInfoResponse.builder()
-				.id(user.getId())
-				.email(user.getEmail())
-				.nickName(user.getNickName())
-				.userImg(user.getUserImg())
-				.createdAt(user.getCreatedAt())
-				.updatedAt(user.getUpdatedAt())
-				.build();
-		
-		ReplyResponse replyResponse = new ReplyResponse(reply, userInfoResponse);
-		replyResponse.setId(reply.getId());
-		replyResponse.setPostId(reply.getPostId());
-		replyResponse.setReplyId(reply.getReplyId());
-		replyResponse.setUserId(reply.getUserId());
-		replyResponse.setUserInfoResponse(userInfoResponse);
-		replyResponse.setContent(reply.getContent());
-		replyResponse.setCreatedAt(reply.getCreatedAt());
-		replyResponse.setUpdatedAt(reply.getUpdatedAt());
-		
-		return replyResponse;
 	}
 	
 	// 댓글 조회
 	public List<ReplyResponse> getPostReplies(int postId){
 		
 		// 만약 post가 없으면
-		Post post = postRepository.findById(postId)
-				.orElseThrow(() -> {
-					throw new AppException(ErrorCode.POST_NOT_FOUND, postId + "번째 글은 찾을 수 없습니다.");
-				});
+		Post post = postService.getPostById(postId);
 		
 		List<Reply> replyList = replyRepository.findByPostId(postId);
 		
@@ -92,7 +62,7 @@ public class ReplyService {
 		
 		// Stream api 사용
 		return replyList.stream()
-				.map(reply -> new ReplyResponse(reply, userService.getUserInfo(post.getUserId())))
+				.map(reply -> new ReplyResponse(reply, userService.getUserInfoById(reply.getUserId())))
 		        .sorted(replyIdComparator)
 		        .collect(Collectors.toList());
 	}
@@ -100,10 +70,7 @@ public class ReplyService {
 	// 개별 댓글 삭제
 	public void deleteReply(String email, int replyId) {
 		// 만약 사용자가 없으면
-		User user = userRepository.findByEmail(email)
-				.orElseThrow(() -> {
-					throw new AppException(ErrorCode.EMAIL_NOT_FOUND, email + "는 찾을 수 없는 회원입니다.");
-				});
+		User user = userService.getUserByEmail(email);
 		
 		// 해당 id인 댓글이 존재 하지 않음
 		Reply reply = replyRepository.findById(replyId)

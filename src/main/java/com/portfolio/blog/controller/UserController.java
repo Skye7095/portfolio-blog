@@ -4,10 +4,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.portfolio.blog.dto.request.UserJoinRequest;
@@ -54,4 +54,12 @@ public class UserController {
 		UserInfoResponse userInfoResponse = userService.update(authentication.getName(), dto);
 	    return ResponseEntity.ok().body(userInfoResponse);
 	}
+	
+	// 개별 사용자 조회
+	@Operation(summary="사용자 개별 조회", description="userId필수 / url: /api/user?userId=* ")
+	@GetMapping("")
+    public ResponseEntity<UserInfoResponse> getUserById(@RequestParam int userId) {
+		UserInfoResponse userInfoResponse = userService.getUserInfoById(userId);
+		return ResponseEntity.ok().body(userInfoResponse);
+    }
 }

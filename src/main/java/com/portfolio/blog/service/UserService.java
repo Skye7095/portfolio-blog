@@ -36,8 +36,32 @@ public class UserService {
 	@Value("${jwt.secret}")
 	private String key;
 	
+	// id를 통해 user찾기
+	public User getUserById(int userId) {
+		 return userRepository.findById(userId)
+	                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, userId + " 해당 회원정보를 찾을 수 없습니다."));
+	}
+	
+	// email를 통해 user찾기
+	public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND, email + " 이메일은 찾을 수 없습니다."));
+    }
+	
+	// nickName을 통해 user찾기
+	public User getUserByNickName(String nickName) {
+		return userRepository.findByNickName(nickName)
+				.orElseThrow(() -> new AppException(ErrorCode.NICKNAME_NOT_FOUND, nickName + " 닉네임 찾을 수 없습니다."));
+	}
+	
+	// userInfoResponse 객체 생성 및 정보 매핑
+	public UserInfoResponse userInfoResponse(User user) {
+        return new UserInfoResponse(user.getId(), user.getEmail(), user.getNickName(), 
+        		user.getUserImg(), user.getCreatedAt(), user.getUpdatedAt());
+    }
+	
 	// 회원가입
-	public String join(String email, String password, String nickName, MultipartFile file) {
+	public void join(String email, String password, String nickName, MultipartFile file) {
 		
 		// email 중복체크
 		userRepository.findByEmail(email)
@@ -67,27 +91,24 @@ public class UserService {
 				.build();
 		userRepository.save(user);
 		
-		return "SUCCESS";
 	}
 	
 	// 로그인
 	public UserTokenResponse login(String email, String password) {
 		// email 없음
-		User selectedUser = userRepository.findByEmail(email)
-					.orElseThrow(() -> {
-						throw new AppException(ErrorCode.EMAIL_NOT_FOUND, " 이메일은 존재하지 않습니다.");
-					});
+		User user = getUserByEmail(email);
+		
 		// password 틀림
-		if(!encoder.matches(password, selectedUser.getPassword())) {
+		if(!encoder.matches(password, user.getPassword())) {
 			throw new AppException(ErrorCode.INVALID_PASSWORD, "패스워드를 잘못 입력했습니다.");
 		}
 		
 		// 토큰 발행
-		String accessToken = JwtUtil.createAccessToken(selectedUser.getEmail(), key);
-		String refreshToken = JwtUtil.createRefreshToken(selectedUser.getEmail(), key);
+		String accessToken = JwtUtil.createAccessToken(user.getEmail(), key);
+		String refreshToken = JwtUtil.createRefreshToken(user.getEmail(), key);
 		
 		// Refresh토큰 있는지 확인
-		Optional<Token> token = jwtRepository.findByUserId(selectedUser.getId());
+		Optional<Token> token = jwtRepository.findByUserId(user.getId());
 		
 		if(token.isPresent()) {
 			// refreshtoken 있으면 db 갱신
@@ -95,25 +116,18 @@ public class UserService {
         }else {
         	// refreshtoken 없으면 db 새로 생성
     		Token newToken = Token.builder()
-    				.userId(selectedUser.getId())
+    				.userId(user.getId())
     				.refreshToken(refreshToken)
     				.build();
     		jwtRepository.save(newToken);
         }
 		
 		// 사용자의 필수정보를 객체에 담아서 리턴		
-		UserInfoResponse userInfoResponse = UserInfoResponse.builder()
-				.id(selectedUser.getId())
-				.email(selectedUser.getEmail())
-				.nickName(selectedUser.getNickName())
-				.userImg(selectedUser.getUserImg())
-				.createdAt(selectedUser.getCreatedAt())
-				.updatedAt(selectedUser.getUpdatedAt())
-				.build();
+		UserInfoResponse userInfoResponse = userInfoResponse(user);
 		
 		
 		UserTokenResponse userToken = UserTokenResponse.builder()
-				.userId(selectedUser.getId())
+				.userId(user.getId())
 				.accessToken(accessToken)
 				.userInfoResponse(userInfoResponse)
 				.build();
@@ -127,10 +141,7 @@ public class UserService {
 			, UserUpdateRequest dto) {
 		
 		// 만약 사용자가 없으면
-		User user = userRepository.findByEmail(email)
-				.orElseThrow(() -> {
-					throw new AppException(ErrorCode.EMAIL_NOT_FOUND, email + "는 찾을 수 없는 회원입니다.");
-				});
+		User user = getUserByEmail(email);
 		
 		// nickName 중복체크
 		userRepository.findByNickName(dto.getNickName())
@@ -156,38 +167,16 @@ public class UserService {
 		
 		userRepository.save(user);		
 		
-		// userInfoResponse 담아서 리턴
-		UserInfoResponse userInfoResponse = UserInfoResponse.builder()
-				.id(user.getId())
-				.email(user.getEmail())
-				.nickName(user.getNickName())
-				.userImg(user.getUserImg())
-				.createdAt(user.getCreatedAt())
-				.updatedAt(user.getUpdatedAt())
-				.build();
-		
-		return userInfoResponse;
+		// userInfoResponse 담아서 리턴		
+		return userInfoResponse(user);
 	}
 	
-	// 사용자 정보 조회
-	public UserInfoResponse getUserInfo(int userId){
-		
-		// 만약 사용자가 없으면
-		User user = userRepository.findById(userId)
-				.orElseThrow(() -> {
-					throw new AppException(ErrorCode.USER_NOT_FOUND, userId + "는 찾을 수 없는 회원입니다.");
-				});
-		
-		// 정보를 userInfoResponse에 담아서 리턴
-		UserInfoResponse userInfoResponse = UserInfoResponse.builder()
-				.id(user.getId())
-				.email(user.getEmail())
-				.nickName(user.getNickName())
-				.userImg(user.getUserImg())
-				.createdAt(user.getCreatedAt())
-				.updatedAt(user.getUpdatedAt())
-				.build();
-		
-		return userInfoResponse;
-	}
+	// 개별 userInfoResponse 리턴
+	public UserInfoResponse getUserInfoById(int userId) {
+		// user 찾기
+		User user = getUserById(userId);
+        
+        // userInfoResponse 담아서 리턴	
+        return userInfoResponse(user);
+    }
 }

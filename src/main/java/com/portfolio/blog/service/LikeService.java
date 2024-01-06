@@ -26,24 +26,17 @@ import lombok.RequiredArgsConstructor;
 public class LikeService {
 	
 	private final LikeRepository likeRepository;
-	private final PostRepository postRepository;
-	private final UserRepository userRepository;
 	private final UserService userService;
+	private final PostService postService;
 	
 	// 좋아요 등록/취소
 	public LikeResponse toggleLike(String email, int postId) {
 		
 		// 만약 post가 없으면
-		Post post = postRepository.findById(postId)
-				.orElseThrow(() -> {
-					throw new AppException(ErrorCode.POST_NOT_FOUND, postId + "번째 글은 찾을 수 없습니다.");
-				});
+		Post post = postService.getPostById(postId);
 		
 		// 만약 user가 없으면
-		User user = userRepository.findByEmail(email)
-				.orElseThrow(() -> {
-					throw new AppException(ErrorCode.EMAIL_NOT_FOUND, email + "는 찾을 수 없는 회원입니다.");
-				});
+		User user = userService.getUserByEmail(email);
 		
 		// postId와 userId를 통해 like여부 확인
         Optional<Like> existingLike = likeRepository.findByUserIdAndPostId(user.getId(), postId);
@@ -84,10 +77,7 @@ public class LikeService {
 	public List<LikeResponse> getLikes(int postId){
 		
 		// 만약 post가 없으면
-		Post post = postRepository.findById(postId)
-				.orElseThrow(() -> {
-					throw new AppException(ErrorCode.POST_NOT_FOUND, postId + "번째 글은 찾을 수 없습니다.");
-				});
+		Post post = postService.getPostById(postId);
 		
 		List<Like> likeList = likeRepository.findByPostId(postId);
 		
@@ -96,7 +86,7 @@ public class LikeService {
 		
 		// Stream api 사용
 		return likeList.stream()
-				.map(like -> new LikeResponse(like, userService.getUserInfo(post.getUserId())))
+				.map(like -> new LikeResponse(like, userService.getUserInfoById(like.getUserId())))
 		        .sorted(likeIdComparator)
 		        .collect(Collectors.toList());
 	}

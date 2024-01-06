@@ -13,12 +13,13 @@ import com.portfolio.blog.dto.Post;
 import com.portfolio.blog.dto.User;
 import com.portfolio.blog.dto.request.PostAddRequest;
 import com.portfolio.blog.dto.request.PostUpdateRequest;
+import com.portfolio.blog.dto.response.LikeResponse;
 import com.portfolio.blog.dto.response.PostResponse;
+import com.portfolio.blog.dto.response.ReplyResponse;
 import com.portfolio.blog.dto.response.UserInfoResponse;
 import com.portfolio.blog.exception.AppException;
 import com.portfolio.blog.exception.ErrorCode;
 import com.portfolio.blog.repository.PostRepository;
-import com.portfolio.blog.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,28 +28,33 @@ import lombok.RequiredArgsConstructor;
 public class PostService {
 	
 	private final PostRepository postRepository;
-	private final UserRepository userRepository;
 	private final UserService userService;
+	private final ReplyService replyService;
+	private final LikeService likeService;
+	
+	// id를 통해 post 조회
+	public Post getPostById(int postId) {
+		return postRepository.findById(postId)
+				.orElseThrow(() -> {
+					throw new AppException(ErrorCode.POST_NOT_FOUND, postId + "번째 글은 찾을 수 없습니다.");
+				});
+	}
+	
+	// postResponse 객체 생성 
+	public PostResponse postResponse(Post post, UserInfoResponse userInfoResponse, 
+			List<ReplyResponse> replyResponses, List<LikeResponse> likeResponses) {
+        return new PostResponse(post.getId(), post.getUserId(), userInfoResponse, 
+        		post.getTitle(), post.getContent(), post.getMainImg(),
+        		replyResponses, likeResponses,
+        		post.getCreatedAt(), post.getUpdatedAt());
+    }
 	
 	// 글 등록
-	public PostResponse writePost(
+	public void writePost(
 			String email
 			, PostAddRequest dto) {
 		// user 정보 찾기
-		User user = userRepository.findByEmail(email)
-				.orElseThrow(() -> {
-					throw new AppException(ErrorCode.USER_NOT_FOUND, email + "는 찾을 수 없는 회원입니다.");
-				});
-		
-		// userInfoResponse 담아서 리턴
-		UserInfoResponse userInfoResponse = UserInfoResponse.builder()
-				.id(user.getId())
-				.email(user.getEmail())
-				.nickName(user.getNickName())
-				.userImg(user.getUserImg())
-				.createdAt(user.getCreatedAt())
-				.updatedAt(user.getUpdatedAt())
-				.build();
+		User user = userService.getUserByEmail(email);
 		
 		// mainImg 경로
 		String mainImg = "null";
@@ -64,21 +70,8 @@ public class PostService {
 				.mainImg(mainImg)
 				.build();
 		postRepository.save(post);
-		
-		// 사용자의 필수정보를 객체에 담아서 리턴
-		PostResponse postResponse = new PostResponse(post, userInfoResponse);
-		postResponse.setId(post.getId());
-		postResponse.setUserId(post.getUserId());
-		postResponse.setUserInfoResponse(userInfoResponse);
-		postResponse.setTitle(post.getTitle());
-		postResponse.setContent(post.getContent());
-		postResponse.setMainImg(post.getMainImg());
-		postResponse.setCreatedAt(post.getCreatedAt());
-		
-		return postResponse;
 	}
-	
-	
+
 	// 글 전체 조회
 	public List<PostResponse> getAllPost(){
 		
@@ -88,21 +81,28 @@ public class PostService {
 		
 		// Stream api 사용
 		return postList.stream()
-				.map(post -> new PostResponse(post, userService.getUserInfo(post.getUserId())))
-				.collect(Collectors.toList());
+		        .map(post -> {
+	                List<ReplyResponse> replyResponses = replyService.getPostReplies(post.getId());
+	                List<LikeResponse> likeResponses = likeService.getLikes(post.getId());
+
+	                return new PostResponse(
+	                        post,
+	                        userService.getUserInfoById(post.getUserId()),
+	                        replyResponses,
+	                        likeResponses
+	                );
+	            })
+		        .collect(Collectors.toList());
 	}
 	
 	// 글 수정
-	public String updatePost(
+	public void updatePost(
 			String email
 			, int postId
 			, PostUpdateRequest dto) {
 		
 		// 만약 사용자가 없으면
-		User user = userRepository.findByEmail(email)
-				.orElseThrow(() -> {
-					throw new AppException(ErrorCode.EMAIL_NOT_FOUND, email + "는 찾을 수 없는 회원입니다.");
-				});
+		User user = userService.getUserByEmail(email);
 		
 		// 해당 id인 글이 존재 하지 않음
 		Post post = postRepository.findById(postId)
@@ -137,18 +137,11 @@ public class PostService {
 		
 		// 업데이트시 업데이트 시간 추가
 		postRepository.save(post);
-			
-		return "SUCCESS";
+
 	}
 	
 	// 개인 글 조회
 	public List<PostResponse> getUserPost(int userId){
-		
-		// 만약 사용자가 없으면
-		User user = userRepository.findById(userId)
-				.orElseThrow(() -> {
-					throw new AppException(ErrorCode.USER_NOT_FOUND, userId + "는 찾을 수 없는 회원입니다.");
-				});
 		
 		List<Post> postList = postRepository.findByUserId(userId);
 		
@@ -157,7 +150,17 @@ public class PostService {
 		
 		// Stream api 사용
 		return postList.stream()
-				.map(post -> new PostResponse(post, userService.getUserInfo(post.getUserId())))
+				.map(post -> {
+	                List<ReplyResponse> replyResponses = replyService.getPostReplies(post.getId());
+	                List<LikeResponse> likeResponses = likeService.getLikes(post.getId());
+
+	                return new PostResponse(
+	                        post,
+	                        userService.getUserInfoById(post.getUserId()),
+	                        replyResponses,
+	                        likeResponses
+	                );
+	            })
 		        .sorted(postIdComparator)
 		        .collect(Collectors.toList());
 	}
@@ -165,40 +168,28 @@ public class PostService {
 	// 개별 글 조회
 	public PostResponse getPost(int postId) {
 		// 만약 글이 없으면
-		Post post = postRepository.findById(postId)
-			.orElseThrow(() -> {
-				throw new AppException(ErrorCode.POST_NOT_FOUND, postId + "번째 글은 찾을 수 없습니다.");
-			});
+		Post post = getPostById(postId);
 		
 		// userInfoResponse 만들기
-		UserInfoResponse userInfoResponse = userService.getUserInfo(post.getUserId());
+		UserInfoResponse userInfoResponse = userService.getUserInfoById(post.getUserId());
+		
+		// replyReponse
+		List<ReplyResponse> replyResponses = replyService.getPostReplies(postId);
+		
+		// likeResponse
+		List<LikeResponse> likeResponses = likeService.getLikes(postId);
 		
 		// postResponse 반환
-		PostResponse postResponse = new PostResponse(post, userInfoResponse);
-		postResponse.setId(post.getId());
-		postResponse.setUserId(post.getUserId());
-		postResponse.setUserInfoResponse(userInfoResponse);
-		postResponse.setTitle(post.getTitle());
-		postResponse.setContent(post.getContent());
-		postResponse.setMainImg(post.getMainImg());
-		postResponse.setCreatedAt(post.getCreatedAt());
-		
-		return postResponse;
+		return postResponse(post, userInfoResponse, replyResponses, likeResponses);
 	}
 	
 	// 개별 글 삭제
 	public void deletePost(String email, int postId) {
 		// 만약 사용자가 없으면
-		User user = userRepository.findByEmail(email)
-				.orElseThrow(() -> {
-					throw new AppException(ErrorCode.EMAIL_NOT_FOUND, email + "는 찾을 수 없는 회원입니다.");
-				});
+		User user = userService.getUserByEmail(email);
 		
 		// 해당 id인 글이 존재 하지 않음
-		Post post = postRepository.findById(postId)
-				.orElseThrow(() -> {
-					throw new AppException(ErrorCode.POST_NOT_FOUND, Integer.toString(postId) + "번째 글을 찾을 수 없습니다.");
-				});
+		Post post = getPostById(postId);
 		
 		// 해당 id인 글이 존재하지만 userId 일치하지 않을 경우 -> 권한 없음
 		postRepository.findById(postId)
