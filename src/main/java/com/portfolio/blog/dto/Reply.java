@@ -21,7 +21,7 @@ public class Reply extends BaseTimeEntity{
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	private int postId;
-	private int replyId;
+	private int originReplyId;
 	private int userId;
 	private String content;
 }

@@ -14,7 +14,7 @@ import lombok.Setter;
 public class ReplyAddRequest {
 	
 	private int postId;
-	private int replyId;
+	private int originReplyId;
 	private int userId;
 	private String content;
 }

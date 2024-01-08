@@ -1,11 +1,11 @@
 package com.portfolio.blog.service;
 
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.portfolio.blog.dto.Post;
@@ -13,12 +13,9 @@ import com.portfolio.blog.dto.Reply;
 import com.portfolio.blog.dto.User;
 import com.portfolio.blog.dto.request.ReplyAddRequest;
 import com.portfolio.blog.dto.response.ReplyResponse;
-import com.portfolio.blog.dto.response.UserInfoResponse;
 import com.portfolio.blog.exception.AppException;
 import com.portfolio.blog.exception.ErrorCode;
-import com.portfolio.blog.repository.PostRepository;
 import com.portfolio.blog.repository.ReplyRepository;
-import com.portfolio.blog.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,13 +25,16 @@ public class ReplyService {
 	
 	private final ReplyRepository replyRepository;
 	private final UserService userService;
-	private final PostService postService;
+
+	@Autowired
+	@Lazy
+    private PostService postService;
 
 	// 댓글 등록
 	public void writeReply(String email, int postId, ReplyAddRequest dto) {
 		
 		// 만약 post가 없으면
-		Post post = postService.getPostById(postId);
+		postService.getPostById(postId);
 		
 		// 만약 user가 없으면
 		User user = userService.getUserByEmail(email);
@@ -42,7 +42,7 @@ public class ReplyService {
 		// 저장
 		Reply reply = Reply.builder()
 				.postId(postId)
-				.replyId(dto.getReplyId())
+				.originReplyId(dto.getOriginReplyId())
 				.userId(user.getId())
 				.content(dto.getContent())
 				.build();
@@ -53,7 +53,7 @@ public class ReplyService {
 	public List<ReplyResponse> getPostReplies(int postId){
 		
 		// 만약 post가 없으면
-		Post post = postService.getPostById(postId);
+		postService.getPostById(postId);
 		
 		List<Reply> replyList = replyRepository.findByPostId(postId);
 		

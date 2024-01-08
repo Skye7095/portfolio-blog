@@ -14,8 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PostResponse {
 	
-	public PostResponse(Post post, UserInfoResponse userInfoById, List<ReplyResponse> replyResponses2,
-			List<LikeResponse> likeResponses) {
+	public PostResponse(Post post, UserInfoResponse userInfoById, List<ReplyResponse> replyResponses, List<LikeResponse> likeResponses) {
 		// TODO Auto-generated constructor stub
 	}
 	private int id;  // post의 id
@@ -25,7 +24,7 @@ public class PostResponse {
 	private String content;
 	private String mainImg;
 	private List<ReplyResponse> replyResponses;
-	private List<LikeResponse> likeResponsess;
+	private List<LikeResponse> likeResponses;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 	

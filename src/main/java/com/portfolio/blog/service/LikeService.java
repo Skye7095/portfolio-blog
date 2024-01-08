@@ -6,18 +6,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.portfolio.blog.dto.Like;
-import com.portfolio.blog.dto.Post;
 import com.portfolio.blog.dto.User;
 import com.portfolio.blog.dto.response.LikeResponse;
 import com.portfolio.blog.dto.response.UserInfoResponse;
-import com.portfolio.blog.exception.AppException;
-import com.portfolio.blog.exception.ErrorCode;
 import com.portfolio.blog.repository.LikeRepository;
-import com.portfolio.blog.repository.PostRepository;
-import com.portfolio.blog.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,13 +24,22 @@ public class LikeService {
 	
 	private final LikeRepository likeRepository;
 	private final UserService userService;
-	private final PostService postService;
+	
+	@Autowired
+	@Lazy
+    private PostService postService;
+	
+	// likeResponse 객체 생성 
+	public LikeResponse likeResponse(Like like, UserInfoResponse userInfoResponse) {
+        return new LikeResponse(like.getId(), like.getUserId(), like.getPostId(), 
+        		userInfoResponse, like.getCreatedAt(), like.getUpdatedAt());
+    }
 	
 	// 좋아요 등록/취소
-	public LikeResponse toggleLike(String email, int postId) {
+	public void toggleLike(String email, int postId) {
 		
 		// 만약 post가 없으면
-		Post post = postService.getPostById(postId);
+		postService.getPostById(postId);
 		
 		// 만약 user가 없으면
 		User user = userService.getUserByEmail(email);
@@ -44,32 +50,13 @@ public class LikeService {
         if (existingLike.isPresent()) {
             // 이미 좋아요를 누른 상태이면 좋아요 취소
             likeRepository.deleteById(existingLike.get().getId());
-            return null; // 좋아요 취소 상태
         } else {
             // 좋아요를 누르지 않은 상태이면 좋아요 추가
-            Like like = new Like();
-            like.setUserId(user.getId());
-            like.setPostId(postId);
+        	Like like = Like.builder()
+        			.userId(user.getId())
+        			.postId(postId)
+        			.build();
             likeRepository.save(like);
-            
-            // 사용자의 필수정보를 객체에 담아서 리턴
-    		UserInfoResponse userInfoResponse = UserInfoResponse.builder()
-    				.id(user.getId())
-    				.email(user.getEmail())
-    				.nickName(user.getNickName())
-    				.userImg(user.getUserImg())
-    				.createdAt(user.getCreatedAt())
-    				.updatedAt(user.getUpdatedAt())
-    				.build();
-    		
-    		LikeResponse likeResponse = new LikeResponse(like, userInfoResponse);
-    		likeResponse.setId(like.getId());
-    		likeResponse.setPostId(like.getPostId());
-    		likeResponse.setUserId(like.getUserId());
-    		likeResponse.setUserInfoResponse(userInfoResponse);
-    		likeResponse.setCreatedAt(like.getCreatedAt());
-            
-            return likeResponse; // 좋아요 상태
         }
     }
 	
@@ -77,7 +64,7 @@ public class LikeService {
 	public List<LikeResponse> getLikes(int postId){
 		
 		// 만약 post가 없으면
-		Post post = postService.getPostById(postId);
+		postService.getPostById(postId);
 		
 		List<Like> likeList = likeRepository.findByPostId(postId);
 		

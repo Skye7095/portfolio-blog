@@ -44,7 +44,7 @@ public class PostService {
 	public PostResponse postResponse(Post post, UserInfoResponse userInfoResponse, 
 			List<ReplyResponse> replyResponses, List<LikeResponse> likeResponses) {
         return new PostResponse(post.getId(), post.getUserId(), userInfoResponse, 
-        		post.getTitle(), post.getContent(), post.getMainImg(),
+        		post.getTitle(), post.getContent(), post.getMainImg(), 
         		replyResponses, likeResponses,
         		post.getCreatedAt(), post.getUpdatedAt());
     }
@@ -82,7 +82,7 @@ public class PostService {
 		// Stream api 사용
 		return postList.stream()
 		        .map(post -> {
-	                List<ReplyResponse> replyResponses = replyService.getPostReplies(post.getId());
+		        	List<ReplyResponse> replyResponses = replyService.getPostReplies(post.getId());
 	                List<LikeResponse> likeResponses = likeService.getLikes(post.getId());
 
 	                return new PostResponse(
@@ -151,7 +151,7 @@ public class PostService {
 		// Stream api 사용
 		return postList.stream()
 				.map(post -> {
-	                List<ReplyResponse> replyResponses = replyService.getPostReplies(post.getId());
+					List<ReplyResponse> replyResponses = replyService.getPostReplies(post.getId());
 	                List<LikeResponse> likeResponses = likeService.getLikes(post.getId());
 
 	                return new PostResponse(
