@@ -15,8 +15,16 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ReplyResponse {
 	
-	public ReplyResponse(Reply reply, UserInfoResponse userInfoById) {
+	public ReplyResponse(Reply reply, UserInfoResponse userInfoResponse) {
 		// TODO Auto-generated constructor stub
+		this.id = reply.getId();
+		this.postId = reply.getPostId();
+		this.originReplyId = reply.getOriginReplyId();
+		this.userId = reply.getUserId();
+		this.userInfoResponse = userInfoResponse;
+		this.content = reply.getContent();
+		this.createdAt = reply.getCreatedAt();
+		this.updatedAt = reply.getUpdatedAt();
 	}
 	private int id;  // reply의 자동 id
 	private int postId;

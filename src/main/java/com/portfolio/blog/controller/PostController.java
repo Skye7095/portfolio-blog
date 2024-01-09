@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -69,16 +70,16 @@ public class PostController {
 	}
 	
 	// 개인 글 조회
-	@Operation(summary="개인 글 조회", description="userId 필요 / url: /api/posts/getPostBy?userId=*")
-	@GetMapping("/getPostBy")
+	@Operation(summary="개인 글 조회", description="userId 필요 / url: /api/posts/getpostby?userId=*")
+	@GetMapping("/getpostby")
 	public ResponseEntity<List<PostResponse>> userPosts(@RequestParam int userId) {
 		List<PostResponse> postResponses = postService.getUserPost(userId);
         return ResponseEntity.ok(postResponses);
 	}
 	
 	// 개별 글 조회
-	@Operation(summary="개별 글 조회", description="postId 필요 / url: /api/posts/getPost?postId=*")
-	@GetMapping("/getPost")
+	@Operation(summary="개별 글 조회", description="postId 필요 / url: /api/posts/getpost?postId=*")
+	@GetMapping("/getpost")
 	public ResponseEntity<PostResponse> getPost(@RequestParam int postId){
 		PostResponse postResponse = postService.getPost(postId);
         return ResponseEntity.ok(postResponse);

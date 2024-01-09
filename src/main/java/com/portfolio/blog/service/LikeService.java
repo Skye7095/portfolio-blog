@@ -32,7 +32,7 @@ public class LikeService {
 	// likeResponse 객체 생성 
 	public LikeResponse likeResponse(Like like, UserInfoResponse userInfoResponse) {
         return new LikeResponse(like.getId(), like.getUserId(), like.getPostId(), 
-        		userInfoResponse, like.getCreatedAt(), like.getUpdatedAt());
+        		userInfoResponse, like.getCreatedAt());
     }
 	
 	// 좋아요 등록/취소

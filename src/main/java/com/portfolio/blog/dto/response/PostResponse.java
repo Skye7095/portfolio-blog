@@ -14,8 +14,18 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PostResponse {
 	
-	public PostResponse(Post post, UserInfoResponse userInfoById, List<ReplyResponse> replyResponses, List<LikeResponse> likeResponses) {
+	public PostResponse(Post post, UserInfoResponse userInfoResponse, List<ReplyResponse> replyResponses, List<LikeResponse> likeResponses) {
 		// TODO Auto-generated constructor stub
+		this.id = post.getId();
+		this.userId = post.getUserId();
+		this.userInfoResponse = userInfoResponse;
+		this.title = post.getTitle();
+		this.mainImg = post.getMainImg();
+		this.content = post.getContent();
+		this.replyResponses = replyResponses;
+		this.likeResponses = likeResponses;
+		this.createdAt = post.getCreatedAt();
+		this.updatedAt = post.getUpdatedAt();
 	}
 	private int id;  // post의 id
 	private int userId;
