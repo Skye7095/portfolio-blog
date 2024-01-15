@@ -20,6 +20,8 @@ import com.portfolio.blog.repository.JWTRepository;
 import com.portfolio.blog.repository.UserRepository;
 import com.portfolio.blog.utils.JwtUtil;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -94,7 +96,7 @@ public class UserService {
 	}
 	
 	// 로그인
-	public UserTokenResponse login(String email, String password) {
+	public UserTokenResponse login(String email, String password, HttpServletResponse response) {		
 		// email 없음
 		User user = getUserByEmail(email);
 		
@@ -121,6 +123,13 @@ public class UserService {
     				.build();
     		jwtRepository.save(newToken);
         }
+		
+		// accessToken을 Cookie에 추가
+	    Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
+	    accessTokenCookie.setHttpOnly(true);
+	    accessTokenCookie.setMaxAge(1000 * 60 * 30); // 유효 시간 설정 (초 단위)
+	    accessTokenCookie.setPath("/"); // 경로 설정
+	    response.addCookie(accessTokenCookie);
 		
 		// 사용자의 필수정보를 객체에 담아서 리턴		
 		UserInfoResponse userInfoResponse = userInfoResponse(user);

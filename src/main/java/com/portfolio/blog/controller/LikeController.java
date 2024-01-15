@@ -39,7 +39,7 @@ public class LikeController {
 	        return ResponseEntity.ok(new ApiResponse(true, "좋아요 성공적으로 등록/취소됐습니다."));
 	    } catch (Exception e) {
 	        // 예외가 발생하면 실패 상태로 응답
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(false, "좋아요 등록/취소 실패했습니다."));
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(false, e.getMessage()));
 	    }
 	}
 	

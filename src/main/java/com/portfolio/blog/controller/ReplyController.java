@@ -42,7 +42,7 @@ public class ReplyController {
 	        return ResponseEntity.ok(new ApiResponse(true, "글을 성공적으로 등록했습니다."));
 	    } catch (Exception e) {
 	        // 예외가 발생하면 실패 상태로 응답
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(false, "글 등록 실패했습니다."));
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(false, e.getMessage()));
 	    }
 	}
 	
@@ -66,7 +66,7 @@ public class ReplyController {
 			return ResponseEntity.ok(new ApiResponse(true, "선택하신 댓글을 삭제 완료했습니다."));
 		} catch (Exception e) {
 	        // 예외가 발생하면 실패 상태로 응답
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(false, "글 삭제 실패했습니다."));
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(false, e.getMessage()));
 	    }
 	}
 }

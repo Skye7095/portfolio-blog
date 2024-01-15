@@ -10,3 +10,4 @@ spring:
     password: root
 jwt:
   secret: portfolio.blog.key
+logging.level.org.springframework: DEBUG

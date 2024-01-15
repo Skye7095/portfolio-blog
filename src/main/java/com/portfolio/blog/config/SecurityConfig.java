@@ -32,9 +32,9 @@ public class SecurityConfig {
 				.csrf().disable()
 				.cors().and()
 				.authorizeRequests()
-				.requestMatchers("/api/user/join", "/api/user/login").permitAll()
-				.requestMatchers("/api/user/update").authenticated()
-				.requestMatchers("/api/posts/add").authenticated()
+				.requestMatchers("/api/user/join", "/api/user/login", "/api/posts/add").permitAll()
+//				.requestMatchers("/api/user/update").authenticated()
+//				.requestMatchers("/api/posts/add").authenticated()
 				.and()
 				.sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // JWT 사용하는 경우
