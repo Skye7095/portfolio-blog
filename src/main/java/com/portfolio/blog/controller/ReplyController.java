@@ -57,12 +57,10 @@ public class ReplyController {
 	// 댓글 삭제
 	@Operation(summary="댓글 삭제", description="token 및 replyId 필요 / replyId는 배열로 전달 / url: /api/posts/delete?replyIds=*")
 	@DeleteMapping("/delete")
-	public ResponseEntity<ApiResponse> deletePost(Authentication authentication, @RequestParam List<Integer> replyIds) {
+	public ResponseEntity<ApiResponse> deletePost(Authentication authentication, @RequestParam int replyId) {
 	
 		try {
-			for (int replyId : replyIds) {
-				replyService.deleteReply(authentication.getName(), replyId);
-		    }
+			replyService.deleteReply(authentication.getName(), replyId);
 			return ResponseEntity.ok(new ApiResponse(true, "선택하신 댓글을 삭제 완료했습니다."));
 		} catch (Exception e) {
 	        // 예외가 발생하면 실패 상태로 응답
