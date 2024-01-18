@@ -31,7 +31,7 @@ public class LikeController {
 	private final LikeService likeService;
 	
 	// 좋아요 추가/취소
-	@Operation(summary="좋아요 추가/취소", description="token 및 postId 필수 / likeResponse리턴되면 like상태, 리턴값 없을 시 unlike상태")
+	@Operation(summary="좋아요 추가/취소", description="token 및 postId 필수 / likeResponse리턴되면 like상태, 리턴값 없을 시 unlike상태 /  url: /api/likes/toggle?postId=*")
 	@PostMapping("/toggle")
 	public ResponseEntity<ApiResponse> writeReply(Authentication authentication, @RequestParam int postId){      
         try {

@@ -55,7 +55,7 @@ public class ReplyController {
 	}
 	
 	// 댓글 삭제
-	@Operation(summary="댓글 삭제", description="token 및 replyId 필요 / replyId는 배열로 전달 / url: /api/posts/delete?replyIds=*")
+	@Operation(summary="댓글 삭제", description="token 및 replyId 필요 / replyId는 int로 전달 / url: /api/posts/delete?replyIds=*")
 	@DeleteMapping("/delete")
 	public ResponseEntity<ApiResponse> deletePost(Authentication authentication, @RequestParam int replyId) {
 	

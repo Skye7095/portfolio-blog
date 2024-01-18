@@ -79,15 +79,15 @@ public class ReplyService {
 				});
 		
 		// 해당 id인 댓글이 존재하지만 userId 일치하지 않을 경우 -> 권한 없음
-		replyRepository.findById(replyId)
-			.ifPresent(existingReply -> {
-	            if (existingReply.getUserId() != (user.getId())) {
-	            	// 해당 글이 해당 userId인 사용자가 작성한 거 아님
-	                throw new AppException(ErrorCode.INVALID_USER, "해당 유저는 해당 댓글에 수정 권한이 없습니다.");
-	            }
-			});
-		
-		// 삭제
-		replyRepository.delete(reply);
+	    if (reply.getUserId() != user.getId()) {
+	        throw new AppException(ErrorCode.INVALID_USER, "해당 유저는 해당 댓글에 수정 권한이 없습니다.");
+	    }
+
+	    // 답글이 있는 경우 답글도 삭제
+	    List<Reply> repliesToDelete = replyRepository.findByOriginalReplyId(reply.getId());
+	    replyRepository.deleteAll(repliesToDelete);
+
+	    // 댓글 삭제
+	    replyRepository.delete(reply);
 	}
 }
