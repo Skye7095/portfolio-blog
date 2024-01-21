@@ -84,7 +84,7 @@ public class ReplyService {
 	    }
 
 	    // 답글이 있는 경우 답글도 삭제
-	    List<Reply> repliesToDelete = replyRepository.findByOriginalReplyId(reply.getId());
+	    List<Reply> repliesToDelete = replyRepository.findByOriginReplyId(reply.getId());
 	    replyRepository.deleteAll(repliesToDelete);
 
 	    // 댓글 삭제

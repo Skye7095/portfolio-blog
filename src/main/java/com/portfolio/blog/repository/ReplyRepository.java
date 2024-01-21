@@ -19,5 +19,5 @@ public interface ReplyRepository extends JpaRepository<Reply, Integer>{
 	Optional<Reply> findById(int id);
 	
 	// 답글 조회
-	List<Reply> findByOriginalReplyId(int id);
+	List<Reply> findByOriginReplyId(int id);
 }
